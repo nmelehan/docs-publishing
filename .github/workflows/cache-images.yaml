@@ -6,10 +6,10 @@ on:
       - develop
 
 env:
-  hugo-image-cache-name: hugo-generated-images
-  hugo-image-cache-path: /home/runner/work/docs/docs/resources/_gen/images/
-  repo-name: docs
-  repo-owner: linode
+  repo_name: docs-publishing
+  repo_owner: nmelehan
+  hugo_image_cache_name: hugo-generated-images
+  hugo_image_cache_path: /home/runner/work/docs-publishing/docs-publishing/resources/_gen/images/
 
 jobs:
   cache-images:
@@ -19,19 +19,19 @@ jobs:
 
       - name: List contents of images dir
         continue-on-error: true
-        run: ls -al ${{ env.hugo-image-cache-path }}
+        run: ls -al ${{ env.hugo_image_cache_path }}
 
       - name: Cache images dir
         uses: actions/cache@v2
         with:
-          path: ${{ env.hugo-image-cache-path }}
-          key: ${{ env.hugo-image-cache-name }}-${{ github.run_id }}
+          path: ${{ env.hugo_image_cache_path }}
+          key: ${{ env.hugo_image_cache_name }}-${{ github.run_id }}
           restore-keys: |
-            ${{ env.hugo-image-cache-name }}
+            ${{ env.hugo_image_cache_name }}
 
       - name: List contents of images dir
         continue-on-error: true
-        run: ls -al ${{ env.hugo-image-cache-path }}
+        run: ls -al ${{ env.hugo_image_cache_path }}
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -75,7 +75,7 @@ jobs:
           curl \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/repos/${{ env.repo-owner }}/${{ env.repo-name }}/actions/caches?key=${{ env.hugo-image-cache-name }} \
+          https://api.github.com/repos/${{ env.repo_owner }}/${{ env.repo_name }}/actions/caches?key=${{ env.hugo_image_cache_name }} \
           -o cache-list.json
 
           echo "The following caches will be deleted:"
@@ -89,5 +89,5 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ env.repo-owner }}/${{ env.repo-name }}/actions/caches/$id
+            https://api.github.com/repos/${{ env.repo_owner }}/${{ env.repo_name }}/actions/caches/$id
           done
