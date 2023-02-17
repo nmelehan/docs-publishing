@@ -4,7 +4,7 @@ on: [pull_request]
 
 env:
   hugo-image-cache-name: hugo-generated-images
-  hugo-image-cache-path: /home/runner/work/docs/docs/resources/_gen/images/
+  hugo-image-cache-path: /home/runner/work/docs-publishing/docs-publishing/resources/_gen/images/
 
 jobs:
   blueberry:
