@@ -7,7 +7,7 @@ on:
 
 env:
   hugo-image-cache-name: hugo-generated-images
-  hugo-image-cache-path: /home/runner/work/docs/docs/resources/_gen/images/
+  hugo-image-cache-path: /home/runner/work/${{ env.repo-name }}/${{ env.repo-name }}/resources/_gen/images/
   repo-name: docs
   repo-owner: linode
 
