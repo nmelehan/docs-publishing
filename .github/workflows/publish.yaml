@@ -25,7 +25,8 @@ jobs:
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
     - name: Checkout docs theme repo
       uses: actions/checkout@v3
-      ref: "${{ steps.get-theme-version.outputs.VERSION }}"
+      with:
+        ref: "${{ steps.get-theme-version.outputs.VERSION }}"
     - name: List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo-image-cache-path }}
