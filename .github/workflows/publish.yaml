@@ -26,6 +26,7 @@ jobs:
     - name: Checkout docs theme repo
       uses: actions/checkout@v3
       with:
+        repository: 'linode/linode-docs-theme'
         ref: "${{ steps.get-theme-version.outputs.VERSION }}"
     - name: List contents of images dir
       continue-on-error: true
