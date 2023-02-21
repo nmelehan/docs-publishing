@@ -40,5 +40,5 @@ jobs:
         hugo
     - name: List rendered files
       run: |
-        apt install -y tree
+        sudo apt install -y tree
         tree -L 1 public
