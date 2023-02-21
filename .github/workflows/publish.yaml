@@ -4,6 +4,7 @@ on: [pull_request]
 
 env:
   hugo-image-cache-name: hugo-generated-images
+  hugo-repo-path: /home/runner/work/docs-publishing/docs-publishing/
   hugo-image-cache-path: /home/runner/work/docs-publishing/docs-publishing/resources/_gen/images/
 
 jobs:
@@ -19,8 +20,7 @@ jobs:
     - name: Get linode-docs-theme version
       id: get-theme-version
       run: |
-        pwd
-        cd docs-publishing
+        cd ${{ hugo_repo_path }}
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
     - name: Checkout docs theme repo
