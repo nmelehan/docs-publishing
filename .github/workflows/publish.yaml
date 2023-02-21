@@ -20,7 +20,7 @@ jobs:
     - name: Get linode-docs-theme version
       id: get-theme-version
       run: |
-        cd ${{ hugo-repo-path }}
+        cd ${{ env.hugo-repo-path }}
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
     - name: Checkout docs theme repo
