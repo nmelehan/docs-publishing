@@ -10,7 +10,22 @@ jobs:
   publish-site:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Set up Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: '0.105.0'
+    - name: Checkout docs repo
+      uses: actions/checkout@v3
+    - name: Get linode-docs-theme version
+      id: get-theme-version
+      run: |
+        pwd
+        cd docs-publishing
+        LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
+        echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
+    - name: Checkout docs theme repo
+      uses: actions/checkout@v3
+      ref: "${{ steps.get-theme-version.outputs.VERSION }}"
     - name: List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo-image-cache-path }}
@@ -20,6 +35,7 @@ jobs:
         path: ${{ env.hugo-image-cache-path }}
         key: ${{ env.hugo-image-cache-name }}
         restore-keys: ${{ env.hugo-image-cache-name }}
+
     - name: List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo-image-cache-path }}
@@ -29,10 +45,6 @@ jobs:
         node-version: 14
     - name: Install dependencies (Node)
       run: npm ci
-    - name: Set up Hugo
-      uses: peaceiris/actions-hugo@v2
-      with:
-        hugo-version: '0.105.0'
     - name: Build Hugo
       run: |
         # TODO: set env variables
