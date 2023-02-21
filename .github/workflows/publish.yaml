@@ -1,0 +1,44 @@
+name: CI Tests
+
+on: [pull_request]
+
+env:
+  hugo-image-cache-name: hugo-generated-images
+  hugo-image-cache-path: /home/runner/work/docs-publishing/docs-publishing/resources/_gen/images/
+
+jobs:
+  publish-site:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: List contents of images dir
+      continue-on-error: true
+      run: ls -al ${{ env.hugo-image-cache-path }}
+    - name: Restore Hugo generated images cache
+      uses: ylemkimon/cache-restore@v2
+      with:
+        path: ${{ env.hugo-image-cache-path }}
+        key: ${{ env.hugo-image-cache-name }}
+        restore-keys: ${{ env.hugo-image-cache-name }}
+    - name: List contents of images dir
+      continue-on-error: true
+      run: ls -al ${{ env.hugo-image-cache-path }}
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14
+    - name: Install dependencies (Node)
+      run: npm ci
+    - name: Set up Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: '0.105.0'
+    - name: Build Hugo
+      run: |
+        # TODO: set env variables
+
+        hugo
+    - name: List rendered files
+      run: |
+        apt install -y tree
+        tree -L 1 public
