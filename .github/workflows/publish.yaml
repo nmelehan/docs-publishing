@@ -31,7 +31,7 @@ jobs:
       env:
         SHORT_SHA: "${{ steps.get-theme-version.outputs.VERSION }}"
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.GH_ACCOUNT_PAT_FOR_THEME_REPO }}
         script: |
           const { SHORT_SHA } = process.env
           const response = await github.commits.get({
