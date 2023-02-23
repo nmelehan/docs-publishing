@@ -26,6 +26,7 @@ jobs:
     - name: Checkout docs theme repo
       uses: actions/checkout@v3
       with:
+        path: 'linode-docs-theme'
         repository: 'nmelehan/linode-docs-theme'
         ref: "${{ steps.get-theme-version.outputs.VERSION }}"
         ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
