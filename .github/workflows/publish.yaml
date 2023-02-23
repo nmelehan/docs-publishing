@@ -26,7 +26,7 @@ jobs:
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
     - name: Lookup linode-docs-theme commit full-length sha
-      uses: actions/github-script@v3
+      uses: actions/github-script@v6
       id: lookup-theme-sha
       env:
         SHORT_SHA: "${{ steps.get-theme-version.outputs.VERSION }}"
