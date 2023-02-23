@@ -25,6 +25,25 @@ jobs:
         cd ${{ env.hugo-repo-path }}
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
+    - name: Lookup linode-docs-theme commit full-length sha
+      uses: actions/github-script@v3
+      id: lookup-theme-sha
+      env:
+        SHORT_SHA: "${{ steps.get-theme-version.outputs.VERSION }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { SHORT_SHA } = process.env
+          const response = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: 'linode-docs-theme',
+            ref: `${SHORT_SHA}`
+          })
+          return response.data.sha
+
+    - name: Print long sha
+      run: echo "${{steps.lookup-theme-sha.outputs.result}}"
+
     - name: Checkout docs theme repo
       uses: actions/checkout@v3
       with:
