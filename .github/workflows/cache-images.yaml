@@ -51,6 +51,7 @@ jobs:
           hugo-version: '0.105.0'
 
       - name: Build Hugo
+        working-directory: ./docs
         run: hugo --gc
 
       - name: List existing Hugo image caches
