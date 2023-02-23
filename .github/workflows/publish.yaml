@@ -34,7 +34,7 @@ jobs:
         github-token: ${{ secrets.GH_ACCOUNT_PAT_FOR_THEME_REPO }}
         script: |
           const { SHORT_SHA } = process.env
-          const response = await github.commits.get({
+          const response = await github.rest.repos.getCommit({
             owner: context.repo.owner,
             repo: 'linode-docs-theme',
             ref: `${SHORT_SHA}`
