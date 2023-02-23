@@ -10,21 +10,25 @@ env:
 jobs:
   publish-site:
     runs-on: ubuntu-latest
+
     steps:
     - name: Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
         hugo-version: '0.105.0'
+
     - name: Checkout docs repo
       uses: actions/checkout@v3
       with:
         path: 'docs'
+
     - name: Get linode-docs-theme version
       id: get-theme-version
       run: |
         cd ${{ env.hugo-repo-path }}
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
+
     - name: Lookup linode-docs-theme commit full-length sha
       uses: actions/github-script@v6
       id: lookup-theme-sha
@@ -56,6 +60,7 @@ jobs:
     - name: List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo-image-cache-path }}
+
     - name: Restore Hugo generated images cache
       uses: ylemkimon/cache-restore@v2
       with:
@@ -66,18 +71,23 @@ jobs:
     - name: List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo-image-cache-path }}
+
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 14
+
     - name: Install dependencies (Node)
+      working-directory: ./docs
       run: npm ci
     - name: Build Hugo
+      working-directory: ./docs
       run: |
         # TODO: set env variables
 
         hugo
     - name: List rendered files
+      working-directory: ./docs
       run: |
         sudo apt install -y tree
         tree -L 1 public
