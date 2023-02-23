@@ -3,8 +3,8 @@ name: CI Tests
 on: [pull_request]
 
 env:
-  hugo-image-cache-name: hugo-generated-images
-  hugo-image-cache-path: /home/runner/work/docs-publishing/docs-publishing/docs/resources/_gen/images/
+  hugo_image_cache_name: hugo-generated-images
+  hugo_image_cache_path: /home/runner/work/docs-publishing/docs-publishing/docs/resources/_gen/images/
 
 jobs:
   blueberry:
@@ -102,16 +102,16 @@ jobs:
         path: docs
     - name: List contents of images dir
       continue-on-error: true
-      run: ls -al ${{ env.hugo-image-cache-path }}
+      run: ls -al ${{ env.hugo_image_cache_path }}
     - name: Restore Hugo generated images cache
       uses: ylemkimon/cache-restore@v2
       with:
-        path: ${{ env.hugo-image-cache-path }}
-        key: ${{ env.hugo-image-cache-name }}
-        restore-keys: ${{ env.hugo-image-cache-name }}
+        path: ${{ env.hugo_image_cache_path }}
+        key: ${{ env.hugo_image_cache_name }}
+        restore-keys: ${{ env.hugo_image_cache_name }}
     - name: List contents of images dir
       continue-on-error: true
-      run: ls -al ${{ env.hugo-image-cache-path }}
+      run: ls -al ${{ env.hugo_image_cache_path }}
     - name: Set up Python
       uses: actions/setup-python@v2
       with:

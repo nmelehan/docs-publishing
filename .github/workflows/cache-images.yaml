@@ -9,8 +9,7 @@ env:
   repo_name: docs-publishing
   repo_owner: nmelehan
   hugo_image_cache_name: hugo-generated-images
-  hugo-repo-path: /home/runner/work/docs-publishing/docs-publishing/docs/
-  hugo-image-cache-path: /home/runner/work/docs-publishing/docs-publishing/docs/resources/_gen/images/
+  hugo_image_cache_path: /home/runner/work/docs-publishing/docs-publishing/docs/resources/_gen/images/
 
 jobs:
   cache-images:
