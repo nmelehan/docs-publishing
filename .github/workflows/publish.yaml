@@ -28,6 +28,7 @@ jobs:
       with:
         repository: 'linode/linode-docs-theme'
         ref: "${{ steps.get-theme-version.outputs.VERSION }}"
+        ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
     - name: List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo-image-cache-path }}
