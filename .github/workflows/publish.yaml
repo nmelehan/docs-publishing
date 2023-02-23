@@ -30,7 +30,7 @@ jobs:
       with:
         path: 'linode-docs-theme'
         repository: 'nmelehan/linode-docs-theme'
-        ref: "${{ steps.get-theme-version.outputs.VERSION }}"
+        ref: "5dbbbe920de0da4effbcd2c45fc14394a4d05b29"
         ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
     - name: List contents of images dir
       continue-on-error: true
