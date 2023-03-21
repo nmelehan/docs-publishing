@@ -11,7 +11,14 @@ jobs:
   publish-site:
     runs-on: ubuntu-latest
 
+    environment:
+      name: deploy_to_main_staging_server
+
     steps:
+    - name: Print Algolia App ID
+      run: |
+        echo ${{ vars.ALGOLIA_APP_ID }}
+
     - name: Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
