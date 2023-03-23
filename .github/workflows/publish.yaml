@@ -15,10 +15,6 @@ jobs:
       name: deploy_to_main_staging_server
 
     steps:
-    - name: Print Algolia App ID
-      run: |
-        echo ${{ vars.ALGOLIA_APP_ID }}
-
     - name: Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
@@ -98,3 +94,12 @@ jobs:
       run: |
         sudo apt install -y tree
         tree -L 1 public
+
+    - name: Update Algolia
+      with:
+        path: 'linode-docs-theme'
+      run: |
+        cd scripts/linode_algolia_admin/
+        go run main.go -source-dir ../../../docs/public pushdocs
+        go run main.go -indices linode-merged push -replace settings,synonyms
+        go run main.go sequence refresh-merge-and-push
