@@ -96,8 +96,7 @@ jobs:
         tree -L 1 public
 
     - name: Update Algolia
-      with:
-        path: 'linode-docs-theme'
+      working-directory: ./linode-docs-theme
       run: |
         cd scripts/linode_algolia_admin/
         go run main.go -source-dir ../../../docs/public pushdocs
