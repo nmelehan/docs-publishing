@@ -60,6 +60,12 @@ jobs:
         ref: "${{ steps.lookup-theme-sha.outputs.result }}"
         ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
 
+    - name: Print Linode Algolia admin tool version
+      working-directory: ./linode-docs-theme
+      run: |
+        cd scripts/linode_algolia_admin/
+        go run main.go version
+
     - name: List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo-image-cache-path }}
@@ -86,7 +92,10 @@ jobs:
     - name: Build Hugo
       working-directory: ./docs
       run: |
-        # TODO: set env variables
+        # TODO: set env variables:
+        # algolia variables
+        # baseURL
+        # ... look up in deploy.sh
 
         hugo
     - name: List rendered files
@@ -99,6 +108,6 @@ jobs:
       working-directory: ./linode-docs-theme
       run: |
         cd scripts/linode_algolia_admin/
-        go run main.go -source-dir ../../../docs/public pushdocs
+        go run main.go pushdocs -source-dir ../../../docs/public
         go run main.go -indices linode-merged push -replace settings,synonyms
         go run main.go sequence refresh-merge-and-push
