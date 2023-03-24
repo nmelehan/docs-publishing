@@ -90,10 +90,14 @@ jobs:
       working-directory: ./docs
       run: npm ci
     - name: Build Hugo
+      env:
+        HUGOxPARAMSxSEARCH_CONFIG2xAPP_ID: ${{ vars.ALGOLIA_APP_ID }}
+        HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
       working-directory: ./docs
       run: |
+        hugo config
+
         # TODO: set env variables:
-        # algolia variables
         # baseURL
         # ... look up in deploy.sh
 
@@ -106,6 +110,9 @@ jobs:
 
     - name: Update Algolia
       working-directory: ./linode-docs-theme
+      env:
+        ALGOLIA_APP_ID: ${{ vars.ALGOLIA_APP_ID }}
+        ALGOLIA_ADMIN_API_KEY: ${{ secrets.ALGOLIA_WRITE_KEY }}
       run: |
         cd scripts/linode_algolia_admin/
         go run main.go pushdocs -source-dir ../../../docs/public
