@@ -115,6 +115,18 @@ jobs:
         ALGOLIA_ADMIN_API_KEY: ${{ secrets.ALGOLIA_WRITE_KEY }}
       run: |
         cd scripts/linode_algolia_admin/
+
+        # Hugo renders the site to the `public` directory within the docs repo.
+        # This includes two files with Algolia index data:
+        # - public/index.json
+        # - public/data/sections/index.json
+        # The pushdocs command uploads this data to Algolia
         go run main.go pushdocs -source-dir ../../../docs/public
+
+        # The settings (e.g. ranking configuration) and synonyms for the
+        # linode-merged index are stored in version control, and the
+        # following command pushes those settings/synonyms to the Algolia app
         go run main.go -indices linode-merged push -replace settings,synonyms
+
+        # The refresh-merge-and-push sequence assumes that the linode-wp and linode-community indices already exist in the Algolia app
         go run main.go sequence refresh-merge-and-push
