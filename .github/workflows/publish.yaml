@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: deploy_to_main_staging_server
+      name: deploy_to_production
 
     steps:
     - name: Set up Hugo
@@ -117,8 +117,9 @@ jobs:
         cd scripts/linode_algolia_admin/
 
         # Hugo renders the site to the `public` directory within the docs repo.
-        # This includes two files with Algolia index data:
+        # This includes three files with Algolia index data:
         # - public/index.json
+        # - public/api/index.json
         # - public/data/sections/index.json
         # The pushdocs command uploads this data to Algolia
         go run main.go pushdocs -source-dir ../../../docs/public
