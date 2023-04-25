@@ -8,7 +8,7 @@ env:
   hugo-image-cache-path: /home/runner/work/docs-publishing/docs-publishing/docs/resources/_gen/images/
 
 jobs:
-  publish-site:
+  preview-site:
     runs-on: ubuntu-latest
 
     environment:
