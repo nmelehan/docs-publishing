@@ -43,7 +43,8 @@ jobs:
     - name: Check out theme repo commit from docs repo go.mod
       working-directory: ./linode-docs-theme
       run: |
-        git show ${{ steps.get-theme-version.outputs.VERSION }}
+        git checkout ${{ steps.get-theme-version.outputs.VERSION }}
+        git status
 
     # - name: Print Linode Algolia admin tool version
     #   working-directory: ./linode-docs-theme
