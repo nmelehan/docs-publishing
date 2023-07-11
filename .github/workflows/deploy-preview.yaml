@@ -30,7 +30,6 @@ jobs:
       working-directory: ./docs
       run: |
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
-        echo "d23d25b" >> $GITHUB_OUTPUT
 
     # - name: Lookup linode-docs-theme commit full-length sha
     #   uses: actions/github-script@v6
