@@ -30,109 +30,116 @@ jobs:
       working-directory: ./docs
       run: |
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
-        echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
+# echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
+        echo "d23d25b" >> $GITHUB_OUTPUT
 
-    - name: Lookup linode-docs-theme commit full-length sha
-      uses: actions/github-script@v6
-      id: lookup-theme-sha
-      env:
-        SHORT_SHA: "${{ steps.get-theme-version.outputs.VERSION }}"
-      with:
-        github-token: ${{ secrets.GH_ACCOUNT_PAT_FOR_THEME_REPO }}
-        result-encoding: string
-        script: |
-          const { SHORT_SHA } = process.env
-          const response = await github.rest.repos.getCommit({
-            owner: context.repo.owner,
-            repo: 'linode-docs-theme',
-            ref: `${SHORT_SHA}`
-          })
-          return response.data.sha
+    # - name: Lookup linode-docs-theme commit full-length sha
+    #   uses: actions/github-script@v6
+    #   id: lookup-theme-sha
+    #   env:
+    #     SHORT_SHA: "${{ steps.get-theme-version.outputs.VERSION }}"
+    #   with:
+    #     github-token: ${{ secrets.GH_ACCOUNT_PAT_FOR_THEME_REPO }}
+    #     result-encoding: string
+    #     script: |
+    #       const { SHORT_SHA } = process.env
+    #       const response = await github.rest.repos.getCommit({
+    #         owner: context.repo.owner,
+    #         repo: 'linode-docs-theme',
+    #         ref: `${SHORT_SHA}`
+    #       })
+    #       return response.data.sha
 
-    - name: Print long sha
-      run: echo "${{steps.lookup-theme-sha.outputs.result}}"
+    # - name: Print long sha
+    #   run: echo "${{steps.lookup-theme-sha.outputs.result}}"
 
     - name: Checkout docs theme repo
       uses: actions/checkout@v3
       with:
         path: 'linode-docs-theme'
         repository: 'nmelehan/linode-docs-theme'
-        ref: "${{ steps.lookup-theme-sha.outputs.result }}"
+        # ref: "${{ steps.lookup-theme-sha.outputs.result }}"
         ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
 
-    - name: Print Linode Algolia admin tool version
+    - name: Print git branches for theme repo
       working-directory: ./linode-docs-theme
       run: |
-        cd scripts/linode_algolia_admin/
-        go run main.go version
+        git branch -a
+        git show d23d25b
 
-    - name: List contents of images dir
-      continue-on-error: true
-      run: ls -al ${{ env.hugo-image-cache-path }}
+    # - name: Print Linode Algolia admin tool version
+    #   working-directory: ./linode-docs-theme
+    #   run: |
+    #     cd scripts/linode_algolia_admin/
+    #     go run main.go version
 
-    - name: Restore Hugo generated images cache
-      uses: ylemkimon/cache-restore@v2
-      with:
-        path: ${{ env.hugo-image-cache-path }}
-        key: ${{ env.hugo-image-cache-name }}
-        restore-keys: ${{ env.hugo-image-cache-name }}
+    # - name: List contents of images dir
+    #   continue-on-error: true
+    #   run: ls -al ${{ env.hugo-image-cache-path }}
 
-    - name: List contents of images dir
-      continue-on-error: true
-      run: ls -al ${{ env.hugo-image-cache-path }}
+    # - name: Restore Hugo generated images cache
+    #   uses: ylemkimon/cache-restore@v2
+    #   with:
+    #     path: ${{ env.hugo-image-cache-path }}
+    #     key: ${{ env.hugo-image-cache-name }}
+    #     restore-keys: ${{ env.hugo-image-cache-name }}
 
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 14
+    # - name: List contents of images dir
+    #   continue-on-error: true
+    #   run: ls -al ${{ env.hugo-image-cache-path }}
 
-    - name: Install dependencies (Node)
-      working-directory: ./docs
-      run: npm ci
+    # - name: Use Node.js
+    #   uses: actions/setup-node@v3
+    #   with:
+    #     node-version: 14
 
-    - name: Build Hugo
-      env:
-        HUGOxPARAMSxSEARCH_CONFIG2xAPP_ID: ${{ vars.ALGOLIA_APP_ID }}
-        HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
-        HUGOxPARAMSxSEARCH_CONFIG2xINDEX_PREFIX: ${{ vars.ALGOLIA_INDEX_PREFIX }}
-      working-directory: ./docs
-      run: |
-        hugo config
+    # - name: Install dependencies (Node)
+    #   working-directory: ./docs
+    #   run: npm ci
 
-        # TODO: set env variables:
-        # baseURL
-        # ... look up in deploy.sh
+    # - name: Build Hugo
+    #   env:
+    #     HUGOxPARAMSxSEARCH_CONFIG2xAPP_ID: ${{ vars.ALGOLIA_APP_ID }}
+    #     HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
+    #     HUGOxPARAMSxSEARCH_CONFIG2xINDEX_PREFIX: ${{ vars.ALGOLIA_INDEX_PREFIX }}
+    #   working-directory: ./docs
+    #   run: |
+    #     hugo config
 
-        hugo
+    #     # TODO: set env variables:
+    #     # baseURL
+    #     # ... look up in deploy.sh
 
-    - name: List rendered files
-      working-directory: ./docs
-      run: |
-        sudo apt install -y tree
-        tree -L 1 public
+    #     hugo
 
-    - name: Update Algolia (sandbox)
-      working-directory: ./linode-docs-theme
-      env:
-        ALGOLIA_APP_ID: ${{ vars.ALGOLIA_APP_ID }}
-        ALGOLIA_ADMIN_API_KEY: ${{ secrets.ALGOLIA_WRITE_KEY }}
-        ALGOLIA_INDEX_PREFIX: ${{ vars.ALGOLIA_INDEX_PREFIX }}
-      run: |
-        cd scripts/linode_algolia_admin/
+    # - name: List rendered files
+    #   working-directory: ./docs
+    #   run: |
+    #     sudo apt install -y tree
+    #     tree -L 1 public
 
-        # The testing-docs-prefix-update sequence does the following:
-        # - Downloads data from the starter_ prefixed linode-wp,
-        #   linode-community, and linode-documentation-sections indices to the
-        #   GitHub Action workspace
-        # - Pushes the rendered index JSON files under the public/ folder
-        #   in the docs repo from Hugo to Algolia. These are:
-        #   - public/index.json
-        #   - public/api/index.json
-        #   - public/data/sections/index.json
-        # - Merge the data from the separate indices and push it into the
-        #   PREFIX_linode-merged index in Algolia
-        # - Update the settings and synonyms for the PREFIX_linode-merged index
-        #   in Algolia
-        # - Delete the PREFIX_linode-documentation and
-        #   PREFIX_linode-documentation-api indices in Algolia to save space
-        go run main.go sequence -source-dir ../../../docs/public testing-docs-prefix-update $ALGOLIA_INDEX_PREFIX
+    # - name: Update Algolia (sandbox)
+    #   working-directory: ./linode-docs-theme
+    #   env:
+    #     ALGOLIA_APP_ID: ${{ vars.ALGOLIA_APP_ID }}
+    #     ALGOLIA_ADMIN_API_KEY: ${{ secrets.ALGOLIA_WRITE_KEY }}
+    #     ALGOLIA_INDEX_PREFIX: ${{ vars.ALGOLIA_INDEX_PREFIX }}
+    #   run: |
+    #     cd scripts/linode_algolia_admin/
+
+    #     # The testing-docs-prefix-update sequence does the following:
+    #     # - Downloads data from the starter_ prefixed linode-wp,
+    #     #   linode-community, and linode-documentation-sections indices to the
+    #     #   GitHub Action workspace
+    #     # - Pushes the rendered index JSON files under the public/ folder
+    #     #   in the docs repo from Hugo to Algolia. These are:
+    #     #   - public/index.json
+    #     #   - public/api/index.json
+    #     #   - public/data/sections/index.json
+    #     # - Merge the data from the separate indices and push it into the
+    #     #   PREFIX_linode-merged index in Algolia
+    #     # - Update the settings and synonyms for the PREFIX_linode-merged index
+    #     #   in Algolia
+    #     # - Delete the PREFIX_linode-documentation and
+    #     #   PREFIX_linode-documentation-api indices in Algolia to save space
+    #     go run main.go sequence -source-dir ../../../docs/public testing-docs-prefix-update $ALGOLIA_INDEX_PREFIX
