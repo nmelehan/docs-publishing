@@ -57,6 +57,7 @@ jobs:
         path: 'linode-docs-theme'
         repository: 'nmelehan/linode-docs-theme'
         # ref: "${{ steps.lookup-theme-sha.outputs.result }}"
+        fetch-depth: 0
         ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
 
     - name: Print git branches for theme repo
