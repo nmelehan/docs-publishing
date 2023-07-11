@@ -30,41 +30,20 @@ jobs:
       working-directory: ./docs
       run: |
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
-
-    # - name: Lookup linode-docs-theme commit full-length sha
-    #   uses: actions/github-script@v6
-    #   id: lookup-theme-sha
-    #   env:
-    #     SHORT_SHA: "${{ steps.get-theme-version.outputs.VERSION }}"
-    #   with:
-    #     github-token: ${{ secrets.GH_ACCOUNT_PAT_FOR_THEME_REPO }}
-    #     result-encoding: string
-    #     script: |
-    #       const { SHORT_SHA } = process.env
-    #       const response = await github.rest.repos.getCommit({
-    #         owner: context.repo.owner,
-    #         repo: 'linode-docs-theme',
-    #         ref: `${SHORT_SHA}`
-    #       })
-    #       return response.data.sha
-
-    # - name: Print long sha
-    #   run: echo "${{steps.lookup-theme-sha.outputs.result}}"
+        echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
 
     - name: Checkout docs theme repo
       uses: actions/checkout@v3
       with:
         path: 'linode-docs-theme'
         repository: 'nmelehan/linode-docs-theme'
-        # ref: "${{ steps.lookup-theme-sha.outputs.result }}"
         fetch-depth: 0
         ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
 
-    - name: Print git branches for theme repo
+    - name: Check out theme repo commit from docs repo go.mod
       working-directory: ./linode-docs-theme
       run: |
-        git branch -a
-        git show d23d25b
+        git show ${{ steps.get-theme-version.outputs.VERSION }}
 
     # - name: Print Linode Algolia admin tool version
     #   working-directory: ./linode-docs-theme
