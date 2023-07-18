@@ -32,7 +32,7 @@ jobs:
 
     - name: SSH into web server
       run: |
-        ssh {{ secrets.DOCS_WEBSITE_SSH_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DOMAINS }}
+        ssh ${{ secrets.DOCS_WEBSITE_SSH_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DOMAINS }}
 
     - name: Get linode-docs-theme version
       id: get-theme-version
