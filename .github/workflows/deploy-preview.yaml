@@ -25,6 +25,11 @@ jobs:
       with:
         path: 'docs'
 
+    - name: Set up SSH agent
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.DOCS_WEBSITE_RSYNC_PRIVATE_KEY }}
+
     - name: Get linode-docs-theme version
       id: get-theme-version
       working-directory: ./docs
