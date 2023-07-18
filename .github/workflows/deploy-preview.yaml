@@ -30,6 +30,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.DOCS_WEBSITE_RSYNC_PRIVATE_KEY }}
 
+    - name: SSH into web server
+      run: |
+        ssh {{ secrets.DOCS_WEBSITE_SSH_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DOMAINS }}
+
     - name: Get linode-docs-theme version
       id: get-theme-version
       working-directory: ./docs
