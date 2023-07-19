@@ -26,7 +26,7 @@ jobs:
         touch test-rsync.txt
         echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION }}" > rsync_known_hosts
         cat rsync_known_hosts
-        rsync -v -e "ssh -o UserKnownHostsFile=rsync_known_hosts" test-rsync.txt ${{ secrets.DOCS_WEBSITE_SSH_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:~/
+        rsync -v -e "ssh -o UserKnownHostsFile=rsync_known_hosts" test-rsync.txt docs@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:~/
         rm rsync_known_hosts
 
     - name: Set up Hugo
