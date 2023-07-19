@@ -15,15 +15,6 @@ jobs:
       name: deploy_to_main_staging_server
 
     steps:
-    - name: Set up Hugo
-      uses: peaceiris/actions-hugo@v2
-      with:
-        hugo-version: '0.111.3'
-
-    - name: Checkout docs repo
-      uses: actions/checkout@v3
-      with:
-        path: 'docs'
 
     - name: Set up SSH agent
       uses: webfactory/ssh-agent@v0.7.0
@@ -33,7 +24,17 @@ jobs:
     - name: SSH into web server
       run: |
         touch test-rsync.txt
-        rsync test-rsync.txt ${{ secrets.DOCS_WEBSITE_SSH_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DOMAINS }}:~/
+        rsync -v test-rsync.txt ${{ secrets.DOCS_WEBSITE_SSH_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DOMAINS }}:~/
+
+    - name: Set up Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: '0.111.3'
+
+    - name: Checkout docs repo
+      uses: actions/checkout@v3
+      with:
+        path: 'docs'
 
     - name: Get linode-docs-theme version
       id: get-theme-version
