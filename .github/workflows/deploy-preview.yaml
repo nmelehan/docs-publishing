@@ -16,19 +16,6 @@ jobs:
 
     steps:
 
-    - name: Set up SSH agent
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.DOCS_WEBSITE_RSYNC_PRIVATE_KEY }}
-
-    - name: SSH into web server
-      run: |
-        touch test-rsync.txt
-        echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION }}" > rsync_known_hosts
-        cat rsync_known_hosts
-        rsync -v -e "ssh -o UserKnownHostsFile=rsync_known_hosts" test-rsync.txt docs@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:~/
-        rm rsync_known_hosts
-
     - name: Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
@@ -46,13 +33,22 @@ jobs:
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
 
-    - name: Checkout docs theme repo
-      uses: actions/checkout@v3
+    - name: Set up SSH agent
+      uses: webfactory/ssh-agent@v0.7.0
       with:
-        path: 'linode-docs-theme'
-        repository: 'nmelehan/linode-docs-theme'
-        fetch-depth: 0
-        ssh-key: "${{ secrets.LINODE_DOCS_THEME_DEPLOY_KEY_FOR_DOCS_DEPLOY_GHA }}"
+        ssh-private-key: ${{ secrets.LINODE_DOCS_THEME_DEPLOY_KEY_FOR_DOCS_DEPLOY_GHA }}
+
+    - name: Checkout docs theme repo
+      run: |
+        git clone git@github.com:nmelehan/linode-docs-theme
+
+    # - name: Checkout docs theme repo
+    #   uses: actions/checkout@v3
+    #   with:
+    #     path: 'linode-docs-theme'
+    #     repository: 'nmelehan/linode-docs-theme'
+    #     fetch-depth: 0
+    #     ssh-key: "${{ secrets.LINODE_DOCS_THEME_DEPLOY_KEY_FOR_DOCS_DEPLOY_GHA }}"
 
     - name: Check out theme repo commit from docs repo go.mod
       working-directory: ./linode-docs-theme
@@ -109,6 +105,19 @@ jobs:
       run: |
         sudo apt install -y tree
         tree -L 1 public
+
+    - name: Set up SSH agent
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.DOCS_WEBSITE_RSYNC_PRIVATE_KEY }}
+
+    - name: SSH into web server
+      run: |
+        touch test-rsync.txt
+        echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION }}" > rsync_known_hosts
+        cat rsync_known_hosts
+        rsync -v -e "ssh -o UserKnownHostsFile=rsync_known_hosts" test-rsync.txt docs@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:~/
+        rm rsync_known_hosts
 
     - name: Update Algolia (sandbox)
       working-directory: ./linode-docs-theme
