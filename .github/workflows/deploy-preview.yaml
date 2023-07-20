@@ -13,6 +13,7 @@ jobs:
 
     environment:
       name: deploy_to_main_staging_server
+      url: http://docs-publishing-gha-main-staging-server.docteamdemosite.club
 
     steps:
 
@@ -33,7 +34,7 @@ jobs:
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
 
-    - name: Set up SSH agent
+    - name: Set up SSH agent (linode-docs-theme repo deploy key)
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.LINODE_DOCS_THEME_DEPLOY_KEY_FOR_DOCS_DEPLOY_GHA }}
@@ -98,7 +99,7 @@ jobs:
         # baseURL
         # ... look up in deploy.sh
 
-        hugo
+        hugo -b "${{ environment.url }}" --gc --minify -d public
 
     - name: List rendered files
       working-directory: ./docs
@@ -106,7 +107,7 @@ jobs:
         sudo apt install -y tree
         tree -L 1 public
 
-    - name: Set up SSH agent
+    - name: Set up SSH agent (docs webserver key)
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.DOCS_WEBSITE_RSYNC_PRIVATE_KEY }}
