@@ -116,7 +116,7 @@ jobs:
         touch test-rsync.txt
         echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION }}" > rsync_known_hosts
         cat rsync_known_hosts
-        rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" docs/public/ docs@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:{{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
+        rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" docs/public/ docs@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
         rm rsync_known_hosts
 
     - name: Update Algolia (sandbox)
