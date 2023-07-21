@@ -13,7 +13,7 @@ jobs:
 
     environment:
       name: deploy_to_main_staging_server
-      url: ${{ secrets.DOCS_WEBSITE_URL }}
+      url: ${{ vars.DOCS_WEBSITE_URL }}
 
     steps:
 
@@ -99,7 +99,7 @@ jobs:
         # baseURL
         # ... look up in deploy.sh
 
-        hugo -b "${{ secrets.DOCS_WEBSITE_URL }}" --gc --minify -d public
+        hugo -b "${{ vars.DOCS_WEBSITE_URL }}" --gc --minify -d public
 
     - name: List rendered files
       working-directory: ./docs
