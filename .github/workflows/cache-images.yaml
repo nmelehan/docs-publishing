@@ -9,7 +9,7 @@ env:
   repo_name: docs-publishing
   repo_owner: nmelehan
   hugo_image_cache_name: hugo-generated-images
-  hugo_image_cache_path: /home/runner/work/docs-publishing/docs-publishing/docs/resources/_gen/images/
+  hugo_image_cache_path: /home/runner/work/docs-publishing/docs-publishing/docs-repo/resources/_gen/images/
 
 jobs:
   cache-images:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: docs
+          path: docs-repo
 
       - name: List contents of images dir
         continue-on-error: true
@@ -42,7 +42,7 @@ jobs:
           architecture: 'x64'
 
       - name: Install dependencies (Node)
-        working-directory: ./docs
+        working-directory: ./docs-repo
         run: npm ci
 
       - name: Set up Hugo
@@ -51,7 +51,7 @@ jobs:
           hugo-version: '0.105.0'
 
       - name: Build Hugo
-        working-directory: ./docs
+        working-directory: ./docs-repo
         run: hugo --gc
 
       - name: List existing Hugo image caches
