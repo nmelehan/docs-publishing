@@ -4,8 +4,8 @@ on: [pull_request]
 
 env:
   hugo-image-cache-name: hugo-generated-images
-  hugo-repo-path: /home/runner/work/docs-publishing/docs-publishing/docs/
-  hugo-image-cache-path: /home/runner/work/docs-publishing/docs-publishing/docs/resources/_gen/images/
+  hugo-repo-path: /home/runner/work/docs-publishing/docs-publishing/docs-repo/
+  hugo-image-cache-path: /home/runner/work/docs-publishing/docs-publishing/docs-repo/resources/_gen/images/
 
 jobs:
   publish-site:
@@ -23,11 +23,11 @@ jobs:
     - name: Checkout docs repo
       uses: actions/checkout@v3
       with:
-        path: 'docs'
+        path: 'docs-repo'
 
     - name: Get linode-docs-theme version
       id: get-theme-version
-      working-directory: ./docs
+      working-directory: ./docs-repo
       run: |
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
@@ -55,13 +55,13 @@ jobs:
     - name: Checkout docs theme repo
       uses: actions/checkout@v3
       with:
-        path: 'linode-docs-theme'
+        path: 'linode-docs-theme-repo'
         repository: 'nmelehan/linode-docs-theme'
         ref: "${{ steps.lookup-theme-sha.outputs.result }}"
         ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
 
     - name: Print Linode Algolia admin tool version
-      working-directory: ./linode-docs-theme
+      working-directory: ./linode-docs-theme-repo
       run: |
         cd scripts/linode_algolia_admin/
         go run main.go version
@@ -87,13 +87,13 @@ jobs:
         node-version: 14
 
     - name: Install dependencies (Node)
-      working-directory: ./docs
+      working-directory: ./docs-repo
       run: npm ci
     - name: Build Hugo
       env:
         HUGOxPARAMSxSEARCH_CONFIG2xAPP_ID: ${{ vars.ALGOLIA_APP_ID }}
         HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
-      working-directory: ./docs
+      working-directory: ./docs-repo
       run: |
         hugo config
 
@@ -103,13 +103,13 @@ jobs:
 
         hugo
     - name: List rendered files
-      working-directory: ./docs
+      working-directory: ./docs-repo
       run: |
         sudo apt install -y tree
         tree -L 1 public
 
     - name: Update Algolia
-      working-directory: ./linode-docs-theme
+      working-directory: ./linode-docs-theme-repo
       env:
         ALGOLIA_APP_ID: ${{ vars.ALGOLIA_APP_ID }}
         ALGOLIA_ADMIN_API_KEY: ${{ secrets.ALGOLIA_WRITE_KEY }}
@@ -122,7 +122,7 @@ jobs:
         # - public/api/index.json
         # - public/data/sections/index.json
         # The pushdocs command uploads this data to Algolia
-        go run main.go pushdocs -source-dir ../../../docs/public
+        go run main.go pushdocs -source-dir ../../../docs-repo/public
 
         # The settings (e.g. ranking configuration) and synonyms for the
         # linode-merged index are stored in version control, and the
