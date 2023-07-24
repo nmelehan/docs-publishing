@@ -94,11 +94,6 @@ jobs:
       working-directory: ./docs
       run: |
         hugo config
-
-        # TODO: set env variables:
-        # baseURL
-        # ... look up in deploy.sh
-
         hugo -b "${{ vars.DOCS_WEBSITE_URL }}" --gc --minify -d public
 
     - name: List rendered files
@@ -114,9 +109,7 @@ jobs:
 
     - name: SSH into web server
       run: |
-        touch test-rsync.txt
         echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION }}" > rsync_known_hosts
-        cat rsync_known_hosts
 
         rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" \
           docs/public/css \
@@ -124,7 +117,7 @@ jobs:
           docs/public/js \
           docs/public/jslibs \
           docs/public/linode \
-          docs@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
+          ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
 
         rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" \
           --exclude="/css/" \
@@ -134,7 +127,7 @@ jobs:
           --exclude="/linode/" \
           --delete \
           docs/public/ \
-          docs@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
+          ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
 
         rm rsync_known_hosts
 
