@@ -82,6 +82,7 @@ jobs:
         HUGOxPARAMSxSEARCH_CONFIG2xAPP_ID: ${{ vars.ALGOLIA_APP_ID }}
         HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
         HUGOxPARAMSxSEARCH_CONFIG2xINDEX_PREFIX: ${{ vars.ALGOLIA_INDEX_PREFIX }}
+        HUGO_ENVIRONMENT: ${{ vars.HUGO_ENVIRONMENT }}
       working-directory: ./docs-repo
       run: |
         hugo config
