@@ -7,11 +7,12 @@ env:
   hugo_image_cache_path: /home/runner/work/docs-publishing/docs-publishing/docs-repo/resources/_gen/images/
 
 jobs:
-  publish-site:
+  deploy-to-production:
     runs-on: ubuntu-latest
 
     environment:
       name: deploy_to_production
+      url: ${{ vars.DOCS_WEBSITE_URL }}
 
     steps:
     - name: Set up Hugo
@@ -31,33 +32,19 @@ jobs:
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
 
-    - name: Lookup linode-docs-theme commit full-length sha
-      uses: actions/github-script@v6
-      id: lookup-theme-sha
-      env:
-        SHORT_SHA: "${{ steps.get-theme-version.outputs.VERSION }}"
+    - name: Set up SSH agent (linode-docs-theme repo deploy key)
+      uses: webfactory/ssh-agent@v0.7.0
       with:
-        github-token: ${{ secrets.GH_ACCOUNT_PAT_FOR_THEME_REPO }}
-        result-encoding: string
-        script: |
-          const { SHORT_SHA } = process.env
-          const response = await github.rest.repos.getCommit({
-            owner: context.repo.owner,
-            repo: 'linode-docs-theme',
-            ref: `${SHORT_SHA}`
-          })
-          return response.data.sha
-
-    - name: Print long sha
-      run: echo "${{steps.lookup-theme-sha.outputs.result}}"
+        ssh-private-key: ${{ secrets.LINODE_DOCS_THEME_DEPLOY_KEY_FOR_DOCS_DEPLOY_GHA }}
 
     - name: Checkout docs theme repo
-      uses: actions/checkout@v3
-      with:
-        path: 'linode-docs-theme-repo'
-        repository: 'nmelehan/linode-docs-theme'
-        ref: "${{ steps.lookup-theme-sha.outputs.result }}"
-        ssh-key: "${{ secrets.LINODE_DOCS_THEME_REPO_DEPLOY_KEY }}"
+      run: |
+        git clone git@github.com:nmelehan/linode-docs-theme linode-docs-theme-repo
+
+    - name: Check out theme repo commit from docs repo go.mod
+      working-directory: ./linode-docs-theme-repo
+      run: |
+        git checkout ${{ steps.get-theme-version.outputs.VERSION }}
 
     - name: Print Linode Algolia admin tool version
       working-directory: ./linode-docs-theme-repo
@@ -88,6 +75,7 @@ jobs:
     - name: Install dependencies (Node)
       working-directory: ./docs-repo
       run: npm ci
+
     - name: Build Hugo
       env:
         HUGOxPARAMSxSEARCH_CONFIG2xAPP_ID: ${{ vars.ALGOLIA_APP_ID }}
@@ -95,17 +83,50 @@ jobs:
       working-directory: ./docs-repo
       run: |
         hugo config
+        hugo -b "${{ vars.DOCS_WEBSITE_URL }}" --gc --minify -d public
 
-        # TODO: set env variables:
-        # baseURL
-        # ... look up in deploy.sh
-
-        hugo
     - name: List rendered files
       working-directory: ./docs-repo
       run: |
         sudo apt install -y tree
         tree -L 1 public
+
+    - name: Set up SSH agent (docs webserver key)
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.DOCS_WEBSITE_RSYNC_PRIVATE_KEY }}
+
+    - name: SSH into web server
+      run: |
+        echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION_1 }}" > rsync_known_hosts
+        echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION_2 }}" >> rsync_known_hosts
+
+        cat rsync_known_hosts
+
+        rsync_to_destination() {
+          rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" \
+            docs-repo/public/css \
+            docs-repo/public/images \
+            docs-repo/public/js \
+            docs-repo/public/jslibs \
+            docs-repo/public/linode \
+            ${{ secrets.DOCS_WEBSITE_USER }}@$1:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
+
+          rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" \
+            --exclude="/css/" \
+            --exclude="/images/" \
+            --exclude="/js/" \
+            --exclude="/jslibs/" \
+            --exclude="/linode/" \
+            --delete \
+            docs-repo/public/ \
+            ${{ secrets.DOCS_WEBSITE_USER }}@$1:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
+        }
+
+        rsync_to_destination "${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION_1 }}"
+        rsync_to_destination "${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION_2 }}"
+
+        rm rsync_known_hosts
 
     - name: Update Algolia
       working-directory: ./linode-docs-theme-repo
