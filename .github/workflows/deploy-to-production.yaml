@@ -101,8 +101,6 @@ jobs:
         echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION_1 }}" > rsync_known_hosts
         echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION_2 }}" >> rsync_known_hosts
 
-        cat rsync_known_hosts
-
         rsync_to_destination() {
           rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" \
             docs-repo/public/css \
