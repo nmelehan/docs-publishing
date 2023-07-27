@@ -35,12 +35,6 @@ jobs:
         continue-on-error: true
         run: ls -al ${{ env.hugo_image_cache_path }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10.x'
-          architecture: 'x64'
-
       - name: Install dependencies (Node)
         working-directory: ./docs
         run: npm ci
