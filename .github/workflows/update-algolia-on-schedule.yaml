@@ -2,7 +2,7 @@ name: CI Tests
 
 on:
   schedule:
-    - cron:  '* * * * *'
+    - cron:  '*/5 * * * *'
 
 jobs:
   update-algolia-on-schedule:
