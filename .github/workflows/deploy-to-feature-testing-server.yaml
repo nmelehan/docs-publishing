@@ -1,4 +1,4 @@
-name: CI Tests
+name: Deploy to feature testing server
 
 on:
   push:
