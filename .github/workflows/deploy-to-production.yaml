@@ -1,9 +1,8 @@
 name: CI Tests
 
 on:
-  push:
-    tags:
-      - '*'
+  release:
+    types: [published]
 
 env:
   hugo_image_cache_name: hugo-generated-images
@@ -27,6 +26,12 @@ jobs:
       uses: actions/checkout@v3
       with:
         path: 'docs-repo'
+
+    - name: Print current docs repo branch/ref/commit
+      working-directory: ./docs-repo
+      run: |
+        git status
+        git log -1
 
     - name: Get linode-docs-theme version
       id: get-theme-version
