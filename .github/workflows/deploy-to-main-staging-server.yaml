@@ -12,7 +12,6 @@ jobs:
 
     environment:
       name: deploy_to_main_staging_server
-      url: ${{ vars.DOCS_WEBSITE_URL }}
 
     steps:
     - name: Set up Hugo
@@ -85,7 +84,7 @@ jobs:
       working-directory: ./docs-repo
       run: |
         hugo config
-        hugo -b "${{ vars.DOCS_WEBSITE_URL }}" --gc --minify -d public
+        hugo -b "${{ secrets.DOCS_WEBSITE_URL }}" --gc --minify -d public
 
     - name: List rendered files
       working-directory: ./docs-repo
