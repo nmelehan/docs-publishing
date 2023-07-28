@@ -4,7 +4,7 @@ on: [pull_request]
 
 env:
   hugo_image_cache_name: hugo-generated-images
-  hugo_image_cache_path: /home/runner/work/docs-publishing/docs-publishing/docs/resources/_gen/images/
+  hugo_image_cache_path: /home/runner/work/docs-publishing/docs-publishing/docs-repo/resources/_gen/images/
 
 jobs:
   blueberry:
@@ -73,7 +73,7 @@ jobs:
       with:
         files: '${{ steps.select_docs_dir_files.outputs.added_modified }}'
         version: 2.19.0
-        vale_flags: "--minAlertLevel=error"
+        vale_flags: "--minAlertLevel=error --glob='!docs/authors/*'"
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
@@ -133,14 +133,14 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: 14
+        node-version: '14.x'
     - name: Install dependencies (Node)
       working-directory: ./docs
       run: npm ci
     - name: Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
-        hugo-version: '0.105.0'
+        hugo-version: '0.115.4'
     - name: Start Hugo server
       working-directory: ./docs
       run: |
