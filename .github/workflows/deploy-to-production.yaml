@@ -96,7 +96,7 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.DOCS_WEBSITE_RSYNC_PRIVATE_KEY }}
 
-    - name: SSH into web server
+    - name: Rsync site to webserver
       run: |
         echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION_1 }}" > rsync_known_hosts
         echo "${{ secrets.DOCS_WEBSITE_RSYNC_HOST_VERIFICATION_2 }}" >> rsync_known_hosts
