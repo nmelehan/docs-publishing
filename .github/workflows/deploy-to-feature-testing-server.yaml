@@ -27,6 +27,12 @@ jobs:
       with:
         path: 'docs-repo'
 
+    - name: Print current docs repo branch/ref/commit
+      working-directory: ./docs-repo
+      run: |
+        git status
+        git log -1
+
     - name: Get linode-docs-theme version
       id: get-theme-version
       working-directory: ./docs-repo

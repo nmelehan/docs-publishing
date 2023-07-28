@@ -9,18 +9,20 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: deploy_to_production
+      name: update_algolia_on_schedule
 
     steps:
     - name: Checkout docs repo
       uses: actions/checkout@v3
       with:
         path: 'docs-repo'
+        ref: 'main'
 
-    - name: Get current docs repo branch
+    - name: Print current docs repo branch/ref/commit
       working-directory: ./docs-repo
       run: |
         git status
+        git log -1
 
     - name: Get linode-docs-theme version
       id: get-theme-version
