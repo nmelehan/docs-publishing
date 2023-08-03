@@ -20,22 +20,10 @@ jobs:
         python-version: '3.10.x'
         architecture: 'x64'
         cache: pip
-    - name: List pip cache 1
-      run: |
-        tree -L 3 /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/
-    - name: List pip cache 2
-      run: |
-        ls ~/.cache/pip
-        echo "/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages"
-        tree -L 3 /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/
     - name: Install dependencies
+      working-directory: ./docs-repo
       run: |
-        pip install -r ./docs-repo/ci/requirements.txt
-    - name: List pip cache 3
-      run: |
-        ls ~/.cache/pip
-        echo "/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages"
-        tree -L 3 /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/
+        pip install -r ./ci/requirements.txt
     - name: blueberry
       working-directory: ./docs-repo
       run: |
@@ -63,7 +51,8 @@ jobs:
       run: sudo apt-get install moreutils
     - name: Select Files in Docs Dir
       # This action filters the list of added and modified
-      # files to only the files that are in the docs/ directory
+      # files to only the files that are in the docs/ subdirectory
+      # of the docs repo
       id: select_docs_dir_files
       working-directory: ./docs-repo
       run: |
