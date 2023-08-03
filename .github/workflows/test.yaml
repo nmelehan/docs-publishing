@@ -22,7 +22,6 @@ jobs:
         cache: pip
     - name: List pip cache 1
       run: |
-        echo "/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages"
         tree -L 3 /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages
     - name: Cache pip
       uses: actions/cache@v2
