@@ -20,14 +20,13 @@ jobs:
         python-version: '3.10.x'
         architecture: 'x64'
         cache: pip
-    - name: Install dependencies
+    - name: Install dependencies (Python)
       working-directory: ./docs-repo
       run: |
         pip install -r ./ci/requirements.txt
     - name: blueberry
       working-directory: ./docs-repo
       run: |
-        python -c 'import sys; print(sys.path)'
         python ./ci/blueberry.py
 
   vale:
@@ -85,14 +84,15 @@ jobs:
       with:
         path: 'docs-repo'
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.11.x'
+        python-version: '3.10.x'
         architecture: 'x64'
-    - name: Install dependencies
+        cache: pip
+    - name: Install dependencies (Python)
+      working-directory: ./docs-repo
       run: |
-        python -m pip install --upgrade pip
-        pip install python-frontmatter
+        pip install -r ./ci/requirements.txt
     - name: Run tests
       working-directory: ./docs-repo
       run: python ./ci/check-links.py ${{ steps.files.outputs.all }}
@@ -117,23 +117,15 @@ jobs:
       continue-on-error: true
       run: ls -al ${{ env.hugo_image_cache_path }}
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10.x'
         architecture: 'x64'
-    - name: Cache pip
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        # Look to see if there is a cache hit for the corresponding requirements file
-        key: ${{ runner.os }}-pip-${{ hashFiles('./docs-repo/ci/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
-    - name: Install dependencies
+        cache: pip
+    - name: Install dependencies (Python)
+      working-directory: ./docs-repo
       run: |
-        python -m pip install --upgrade pip
-        pip install -r ./docs-repo/ci/requirements.txt
+        pip install -r ./ci/requirements.txt
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
