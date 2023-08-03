@@ -12,8 +12,6 @@ jobs:
     steps:
     - name: Checkout docs repo
       uses: actions/checkout@v3
-      with:
-        path: 'docs-repo'
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -21,11 +19,9 @@ jobs:
         architecture: 'x64'
         cache: pip
     - name: Install dependencies (Python)
-      working-directory: ./docs-repo
       run: |
         pip install -r ./ci/requirements.txt
     - name: blueberry
-      working-directory: ./docs-repo
       run: |
         python ./ci/blueberry.py
 
@@ -34,8 +30,6 @@ jobs:
     steps:
     - name: Checkout docs repo
       uses: actions/checkout@v3
-      with:
-        path: 'docs-repo'
     - name: Get Changed Files
       id: get_changed_files
       uses: jitterbit/get-changed-files@v1
@@ -53,7 +47,6 @@ jobs:
       # files to only the files that are in the docs/ subdirectory
       # of the docs repo
       id: select_docs_dir_files
-      working-directory: ./docs-repo
       run: |
         docs_dir_files=$(echo $added_modified |  jq -c '[.[] | select(.|test("^docs/"))]')
         echo "::set-output name=added_modified::$docs_dir_files"
@@ -81,8 +74,6 @@ jobs:
     steps:
     - name: Checkout docs repo
       uses: actions/checkout@v3
-      with:
-        path: 'docs-repo'
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -90,11 +81,9 @@ jobs:
         architecture: 'x64'
         cache: pip
     - name: Install dependencies (Python)
-      working-directory: ./docs-repo
       run: |
         pip install -r ./ci/requirements.txt
     - name: Run tests
-      working-directory: ./docs-repo
       run: python ./ci/check-links.py ${{ steps.files.outputs.all }}
 
   docs404:
