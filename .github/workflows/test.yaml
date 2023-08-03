@@ -62,7 +62,6 @@ jobs:
       # completes when it is passed the empty array.
       if: ${{ '[]' != steps.select_docs_dir_files.outputs.added_modified }}
       with:
-        files: '${{ steps.select_docs_dir_files.outputs.added_modified }}'
         version: 2.19.0
         vale_flags: "--minAlertLevel=error --glob='!docs/authors/*'"
         filter_mode: nofilter
