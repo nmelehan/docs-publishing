@@ -15,10 +15,11 @@ jobs:
       with:
         path: 'docs-repo'
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10.x'
         architecture: 'x64'
+        cache: pip
     - name: List pip cache 1
       run: |
         echo "/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages"
