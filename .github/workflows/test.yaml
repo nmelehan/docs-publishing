@@ -35,6 +35,7 @@ jobs:
     - name: blueberry
       working-directory: ./docs-repo
       run: |
+        python -c 'import sys; print(sys.path)'
         python ./ci/blueberry.py
 
   vale:
