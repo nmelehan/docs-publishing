@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
+      if: github.repository_owner == 'nmelehan'
       name: update_algolia_on_schedule
 
     steps:

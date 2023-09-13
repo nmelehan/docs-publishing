@@ -13,6 +13,7 @@ env:
 
 jobs:
   deploy-to-production:
+    if: github.repository_owner == 'nmelehan'
     runs-on: ubuntu-latest
 
     environment:
