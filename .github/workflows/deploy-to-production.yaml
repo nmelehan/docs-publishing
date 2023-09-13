@@ -20,6 +20,11 @@ jobs:
       url: ${{ vars.DOCS_WEBSITE_URL }}
 
     steps:
+    - name: Print github repo owner
+      run: |
+        echo $GITHUB_REPOSITORY_OWNER
+
+
     - name: Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
