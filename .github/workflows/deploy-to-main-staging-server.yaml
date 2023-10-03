@@ -13,7 +13,7 @@ env:
 
 jobs:
   deploy-to-main-staging-server:
-    if: github.repository_owner == 'linode'
+    if: github.repository_owner == 'nmelehan'
     runs-on: ubuntu-latest
 
     environment:
