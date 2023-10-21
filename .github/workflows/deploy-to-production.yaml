@@ -3,6 +3,9 @@ name: Deploy to production
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - 'publish-site-gha'
 
 env:
   hugo_image_cache_name: hugo-generated-images
@@ -10,6 +13,7 @@ env:
 
 jobs:
   deploy-to-production:
+    if: github.repository_owner == 'linode'
     runs-on: ubuntu-latest
 
     environment:
@@ -17,10 +21,15 @@ jobs:
       url: ${{ vars.DOCS_WEBSITE_URL }}
 
     steps:
+    - name: Print github repo owner
+      run: |
+        echo $GITHUB_REPOSITORY_OWNER
+
+
     - name: Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
-        hugo-version: '0.115.4'
+        hugo-version: '0.116.1'
 
     - name: Checkout docs repo
       uses: actions/checkout@v3
