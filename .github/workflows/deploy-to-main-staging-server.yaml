@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'test-rsync-assets'
 
 env:
   hugo_image_cache_name: hugo-generated-images
