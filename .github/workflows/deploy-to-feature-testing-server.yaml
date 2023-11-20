@@ -94,7 +94,7 @@ jobs:
 
     - name: Checkout docs theme repo
       run: |
-        git clone git@github.com:linode/linode-docs-theme linode-docs-theme-repo
+        git clone git@github.com:nmelehan/linode-docs-theme linode-docs-theme-repo
 
     - name: Check out theme repo commit from docs repo go.mod
       working-directory: ./linode-docs-theme-repo
