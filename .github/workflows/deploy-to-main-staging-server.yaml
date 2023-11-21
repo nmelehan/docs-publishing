@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'test-rsync-assets'
 
 env:
   hugo_image_cache_name: hugo-generated-images
@@ -53,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: deploy_to_main_staging_server
+      name: deploy_to_kitchen
 
     steps:
     - name: Set up Hugo
@@ -94,7 +95,7 @@ jobs:
 
     - name: Checkout docs theme repo
       run: |
-        git clone git@github.com:linode/linode-docs-theme linode-docs-theme-repo
+        git clone git@github.com:nmelehan/linode-docs-theme linode-docs-theme-repo
 
     - name: Check out theme repo commit from docs repo go.mod
       working-directory: ./linode-docs-theme-repo
@@ -144,6 +145,7 @@ jobs:
         HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
         HUGOxPARAMSxSEARCH_CONFIG2xINDEX_PREFIX: ${{ vars.ALGOLIA_INDEX_PREFIX }}
         HUGO_ENVIRONMENT: ${{ vars.HUGO_ENVIRONMENT }}
+        HUGO_IGNOREERRORS: algolia-cachewarmer
       working-directory: ./docs-repo
       run: |
         hugo config
