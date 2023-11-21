@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: deploy_to_main_staging_server
+      name: deploy_to_kitchen
 
     steps:
     - name: Set up Hugo
