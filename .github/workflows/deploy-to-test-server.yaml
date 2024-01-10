@@ -59,7 +59,9 @@ jobs:
     - name: Print vars
       run: |
         echo $GITHUB_REPOSITORY_OWNER
-        echo $GITHUB_ACTION_PATH
+        pwd
+        cd ~/
+        pwd
 
 
     # - name: Set up Hugo
