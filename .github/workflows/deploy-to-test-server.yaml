@@ -62,6 +62,7 @@ jobs:
         pwd
         cd ~/
         pwd
+        echo $GITHUB_WORKSPACE
 
 
     # - name: Set up Hugo
