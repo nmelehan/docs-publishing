@@ -231,35 +231,29 @@ jobs:
         mkdir docs-$GITHUB_SHA
         cd docs-$GITHUB_SHA
         put index.html
-        cd ..
+        exit
+        EOF
+
+        rm sftp_known_hosts
+
+    - name: SFTP symlink docs folder on webserver
+      run: |
+        echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
+
+        echo "$GITHUB_SHA" > index.html
+
+        sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
+        lpwd
+        lls -al
+        pwd
+
+        cd docs
+        ls -al
+
         ln -s docs-$GITHUB_SHA new_docs
         rename new_docs docs
         ls -al
         exit
         EOF
 
-    #     # Sync these assets without the --delete flag. These
-    #     # assets' filenames are fingerprinted, so they will not
-    #     # conflict with old versions that remain on the server.
-    #     rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" \
-    #       docs-repo/public/css \
-    #       docs-repo/public/images \
-    #       docs-repo/public/js \
-    #       docs-repo/public/jslibs \
-    #       docs-repo/public/linode \
-    #       ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
-
-    #     # Sync everything else, and delete files in the destination
-    #     # rsync dir that do not exist in the source docs-repo/public/
-    #     # folder
-    #     rsync -r -e "ssh -o UserKnownHostsFile=rsync_known_hosts" \
-    #       --exclude="/css/" \
-    #       --exclude="/images/" \
-    #       --exclude="/js/" \
-    #       --exclude="/jslibs/" \
-    #       --exclude="/linode/" \
-    #       --delete \
-    #       docs-repo/public/ \
-    #       ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_RSYNC_DESTINATION }}:${{ secrets.DOCS_WEBSITE_RSYNC_DIR }}
-
-    #     rm rsync_known_hosts
+        rm sftp_known_hosts
