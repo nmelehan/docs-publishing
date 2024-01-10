@@ -27,19 +27,19 @@ jobs:
 
       - name: List contents of images dir
         continue-on-error: true
-        run: ls -al ${{ env.hugo_image_cache_path }}
+        run: ls -al $GITHUB_WORKSPACE/${{ env.hugo_image_cache_path }}
 
       - name: Cache images dir
         uses: actions/cache@v2
         with:
-          path: ${{ env.hugo_image_cache_path }}
+          path: $GITHUB_WORKSPACE/${{ env.hugo_image_cache_path }}
           key: ${{ env.hugo_image_cache_name }}-${{ github.run_id }}
           restore-keys: |
-            $GITHUB_WORKSPACE/${{ env.hugo_image_cache_name }}
+            ${{ env.hugo_image_cache_name }}
 
       - name: List contents of images dir
         continue-on-error: true
-        run: ls -al ${{ env.hugo_image_cache_path }}
+        run: ls -al $GITHUB_WORKSPACE/${{ env.hugo_image_cache_path }}
 
       - name: Install dependencies (Node)
         working-directory: ./docs-repo
