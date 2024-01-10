@@ -1,4 +1,4 @@
-name: Deploy to main staging server
+name: Deploy to test kitchen server
 
 on:
   push:
