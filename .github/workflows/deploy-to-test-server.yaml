@@ -56,6 +56,12 @@ jobs:
       name: deploy_to_kitchen
 
     steps:
+    - name: Print vars
+      run: |
+        echo $GITHUB_REPOSITORY_OWNER
+        echo $GITHUB_ACTION_PATH
+
+
     # - name: Set up Hugo
     #   uses: peaceiris/actions-hugo@v2
     #   with:
