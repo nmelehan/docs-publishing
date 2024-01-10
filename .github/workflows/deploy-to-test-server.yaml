@@ -227,11 +227,13 @@ jobs:
 
         cd docs
         ls -al
+
         mkdir docs-$GITHUB_SHA
         cd docs-$GITHUB_SHA
         put index.html
-        ls -al
         cd ..
+        ln -s docs-$GITHUB_SHA new_docs
+        rename new_docs docs
         ls -al
         exit
         EOF
