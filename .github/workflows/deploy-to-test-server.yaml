@@ -221,7 +221,7 @@ jobs:
         sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
         lpwd
         lls -al
-        ls
+        pwd
         ls -al
         exit
         EOF
