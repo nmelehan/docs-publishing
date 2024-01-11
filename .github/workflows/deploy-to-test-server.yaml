@@ -239,13 +239,17 @@ jobs:
     - name: Wait for unzip
       working-directory: ./docs-repo
       run: |
+        CHECK_URL=https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs-$GITHUB_SHA/
+        echo $CHECK_URL
+
         # Wait for server to unzip the tarball of the docs site
         for i in {1..30}
         do
-          curl -IL ${{ secrets.DOCS_WEBSITE_URL }}
-          curl -IL ${{ secrets.DOCS_WEBSITE_URL }} | grep 'HTTP' > $HTTP_CODE
-          curl -IL ${{ secrets.DOCS_WEBSITE_URL }} | grep '404 Not Found'
-          curl -IL ${{ secrets.DOCS_WEBSITE_URL }} | grep '200 OK'
+          curl -IL $CHECK_URL
+          HTTP_CODE=$(curl -IL $CHECK_URL | grep 'HTTP')
+          echo $HTTP_CODE
+          curl -IL $CHECK_URL | grep '404 Not Found'
+          curl -IL $CHECK_URL | grep '200 OK'
           grep '404 Not Found' $HTTP_CODE
           grep '200 OK' $HTTP_CODE
 
