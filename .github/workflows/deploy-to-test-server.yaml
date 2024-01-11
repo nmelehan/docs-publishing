@@ -7,7 +7,7 @@ on:
 
 env:
   hugo_image_cache_name: hugo-generated-images
-  hugo_image_cache_path: /home/runner/work/docs/docs/docs-repo/resources/_gen/images/
+  hugo_image_cache_path: docs-repo/resources/_gen/images/
 
 # This workflow builds the site with Hugo, syncs it over to a staging web
 # server, and updates the sandbox Algolia app to reflect the content in the
@@ -65,23 +65,23 @@ jobs:
         echo $GITHUB_WORKSPACE
 
 
-    # - name: Set up Hugo
-    #   uses: peaceiris/actions-hugo@v2
-    #   with:
-    #     hugo-version: '0.116.1'
+    - name: Set up Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: '0.116.1'
 
-    # - name: Checkout docs repo
-    #   uses: actions/checkout@v3
-    #   with:
-    #     path: 'docs-repo'
+    - name: Checkout docs repo
+      uses: actions/checkout@v3
+      with:
+        path: 'docs-repo'
 
-    #   # Debugging step so we can check if the right version
-    #   # of the docs repo is checked out
-    # - name: Print current docs repo branch/ref/commit
-    #   working-directory: ./docs-repo
-    #   run: |
-    #     git status
-    #     git log -1
+      # Debugging step so we can check if the right version
+      # of the docs repo is checked out
+    - name: Print current docs repo branch/ref/commit
+      working-directory: ./docs-repo
+      run: |
+        git status
+        git log -1
 
     # - name: Get linode-docs-theme version
     #   id: get-theme-version
@@ -118,25 +118,25 @@ jobs:
     #     cd scripts/linode_algolia_admin/
     #     go run main.go version
 
-    #   # Debugging step that lists the Hugo-generated images
-    #   # directory *before* the imache cache restore step
-    # - name: List contents of images dir
-    #   continue-on-error: true
-    #   run: ls -al ${{ env.hugo_image_cache_path }}
+      # Debugging step that lists the Hugo-generated images
+      # directory *before* the imache cache restore step
+    - name: List contents of images dir
+      continue-on-error: true
+      run: ls -al ${{ env.hugo_image_cache_path }}
 
-    # - name: Restore Hugo generated images cache
-    #   uses: ylemkimon/cache-restore@v2
-    #   with:
-    #     path: ${{ env.hugo_image_cache_path }}
-    #     key: ${{ env.hugo_image_cache_name }}
-    #     restore-keys: ${{ env.hugo_image_cache_name }}
+    - name: Restore Hugo generated images cache
+      uses: ylemkimon/cache-restore@v2
+      with:
+        path: ${{ env.hugo_image_cache_path }}
+        key: ${{ env.hugo_image_cache_name }}
+        restore-keys: ${{ env.hugo_image_cache_name }}
 
-    #   # Debugging step that lists the Hugo-generated images
-    #   # directory *after* the imache cache restore step,
-    #   # to make sure that the restore happened successfully
-    # - name: List contents of images dir
-    #   continue-on-error: true
-    #   run: ls -al ${{ env.hugo_image_cache_path }}
+      # Debugging step that lists the Hugo-generated images
+      # directory *after* the imache cache restore step,
+      # to make sure that the restore happened successfully
+    - name: List contents of images dir
+      continue-on-error: true
+      run: ls -al ${{ env.hugo_image_cache_path }}
 
     # - name: Use Node.js
     #   uses: actions/setup-node@v3
