@@ -240,7 +240,7 @@ jobs:
 
         mkdir docs-$GITHUB_SHA
         cd docs-$GITHUB_SHA
-        @put -r *
+        put -qr *
         exit
         EOF
 
