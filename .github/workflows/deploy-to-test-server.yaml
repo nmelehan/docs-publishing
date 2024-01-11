@@ -166,9 +166,9 @@ jobs:
         sudo apt install -y tree
         tree -L 1 public
 
-      # When Hugo builds, it renders search index data to a collection of
-      # data files under public/. This step uploads that data to the
-      # Algolia search backend
+    #   # When Hugo builds, it renders search index data to a collection of
+    #   # data files under public/. This step uploads that data to the
+    #   # Algolia search backend
     # - name: Update Algolia (sandbox)
     #   working-directory: ./linode-docs-theme-repo
     #   env:
@@ -227,7 +227,24 @@ jobs:
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
-        sftp -q -b docs-repo/ci/sftp-upload -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} > /dev/null
+        cd docs-repo
+
+        tar -czf docs-$GITHUB_SHA.tar.gz public/
+
+        sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
+        lpwd
+        lls -al
+        lcd docs-repo/public/
+        lpwd
+        lls -al
+
+
+        cd docs
+        ls -al
+
+        put docs-$GITHUB_SHA
+        exit
+        EOF
 
         rm sftp_known_hosts
 
