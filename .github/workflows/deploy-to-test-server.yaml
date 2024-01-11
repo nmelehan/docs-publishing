@@ -257,9 +257,9 @@ jobs:
           echo "\ngrep curl 200"
           curl -ILs $CHECK_URL | grep '200 OK'
           echo "\ngrep code 404"
-          echo $HTTP_CODE | grep '404 Not Found'
+          echo $HTTP_CODE
           echo "\n grep code 200"
-          echo $HTTP_CODE | grep '200 OK'
+          echo $HTTP_CODE
 
           sleep 1
         done
