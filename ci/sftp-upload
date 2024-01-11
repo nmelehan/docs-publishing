@@ -1,4 +1,4 @@
-@lpwd
+lpwd
 lls -al
 lcd docs-repo/public/
 lpwd
@@ -8,6 +8,6 @@ lls -al
 cd docs
 ls -al
 
-mkdir docs-cicdtest-1
-cd docs-cicdtest-1
-@put -r *
+mkdir docs-cicdtest-2
+cd docs-cicdtest-2
+put -r *
