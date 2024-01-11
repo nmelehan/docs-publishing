@@ -227,8 +227,6 @@ jobs:
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
-        echo "$GITHUB_SHA" > index.html
-
         sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
         lpwd
         lls -al
@@ -242,6 +240,7 @@ jobs:
 
         mkdir docs-$GITHUB_SHA
         cd docs-$GITHUB_SHA
+        put *
         exit
         EOF
 
