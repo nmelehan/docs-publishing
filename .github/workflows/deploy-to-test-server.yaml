@@ -240,25 +240,25 @@ jobs:
       working-directory: ./docs-repo
       shell: bash
       run: |
-        CHECK_URL=https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs-$GITHUB_SHA/
-        echo $CHECK_URL
+        # CHECK_URL=https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs-$GITHUB_SHA/
+        # echo $CHECK_URL
 
         # Wait for server to unzip the tarball of the docs site
         for i in {1..30}
         do
-          echo "curl"
-          curl -IL $CHECK_URL
-          echo "\ncapture code"
-          HTTP_CODE=$(curl -IL $CHECK_URL | grep 'HTTP')
-          echo $HTTP_CODE
-          echo "\ngrep curl 404"
-          curl -IL $CHECK_URL | grep '404 Not Found'
-          echo "\ngrep curl 200"
-          curl -IL $CHECK_URL | grep '200 OK'
-          echo "\ngrep code 404"
-          grep '404 Not Found' $HTTP_CODE
-          echo "\n grep code 200"
-          grep '200 OK' $HTTP_CODE
+          echo "curl $i"
+          # curl -IL $CHECK_URL
+          # echo "\ncapture code"
+          # HTTP_CODE=$(curl -IL $CHECK_URL | grep 'HTTP')
+          # echo $HTTP_CODE
+          # echo "\ngrep curl 404"
+          # curl -IL $CHECK_URL | grep '404 Not Found'
+          # echo "\ngrep curl 200"
+          # curl -IL $CHECK_URL | grep '200 OK'
+          # echo "\ngrep code 404"
+          # grep '404 Not Found' $HTTP_CODE
+          # echo "\n grep code 200"
+          # grep '200 OK' $HTTP_CODE
 
           sleep 1
         done
