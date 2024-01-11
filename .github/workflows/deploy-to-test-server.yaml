@@ -239,7 +239,6 @@ jobs:
 
     - name: Wait for unzip
       working-directory: ./docs-repo
-      continue-on-error: true
       shell: bash
       run: |
         set +e
@@ -250,19 +249,16 @@ jobs:
         # Wait for server to unzip the tarball of the docs site
         for i in {1..30}
         do
-          echo "curl $i"
-          curl -ILs $CHECK_URL
-          echo "\ncapture code"
-          HTTP_CODE=$(curl -ILs $CHECK_URL | grep 'HTTP')
-          echo $HTTP_CODE
-          echo "\ngrep curl 404"
-          curl -ILs $CHECK_URL | grep '404 Not Found'
-          echo "\ngrep curl 200"
-          curl -ILs $CHECK_URL | grep -c '200 OK'
-          echo $grep_response
+          curl -ILs $CHECK_URL | grep 'HTTP' | grep '200 OK'
+          if [ 0 -eq $? ]; then
+            exit 0
+          fi
 
           sleep 1
         done
+
+        echo "Server did not unzip docs tarball before ${{ env.unzip_timeout }} seconds"
+        exit 1
 
     - name: SFTP symlink docs folder on webserver
       # working-directory: ./docs-repo
