@@ -8,7 +8,7 @@ on:
 env:
   hugo_image_cache_name: hugo-generated-images
   hugo_image_cache_path: docs-repo/resources/_gen/images/
-  unzip_timeout: 5
+  unzip_timeout: 30
 
 # This workflow builds the site with Hugo, syncs it over to a staging web
 # server, and updates the sandbox Algolia app to reflect the content in the
