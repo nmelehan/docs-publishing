@@ -227,7 +227,7 @@ jobs:
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
-        tar -czf docs-$GITHUB_SHA.tar.gz docs-repo/public/
+        tar -czf docs-$GITHUB_SHA.tar.gz -C docs-repo/public/ .
 
         sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
         lpwd
@@ -243,6 +243,7 @@ jobs:
         rm sftp_known_hosts
 
     - name: SFTP symlink docs folder on webserver
+      # working-directory: ./docs-repo
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
