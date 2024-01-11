@@ -242,6 +242,8 @@ jobs:
       continue-on-error: true
       shell: bash
       run: |
+        set +e
+
         CHECK_URL="https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs-$GITHUB_SHA/"
         echo $CHECK_URL
 
@@ -256,10 +258,8 @@ jobs:
           echo "\ngrep curl 404"
           curl -ILs $CHECK_URL | grep '404 Not Found'
           echo "\ngrep curl 200"
-          grep_response=$(curl -ILs $CHECK_URL | grep -c '200 OK')
+          curl -ILs $CHECK_URL | grep -c '200 OK'
           echo $grep_response
-          echo $HTTP_CODE
-          echo $HTTP_CODE
 
           sleep 1
         done
