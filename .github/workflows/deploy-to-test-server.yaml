@@ -245,12 +245,18 @@ jobs:
         # Wait for server to unzip the tarball of the docs site
         for i in {1..30}
         do
+          echo "curl"
           curl -IL $CHECK_URL
+          echo "\ncapture code"
           HTTP_CODE=$(curl -IL $CHECK_URL | grep 'HTTP')
           echo $HTTP_CODE
+          echo "\ngrep curl 404"
           curl -IL $CHECK_URL | grep '404 Not Found'
+          echo "\ngrep curl 200"
           curl -IL $CHECK_URL | grep '200 OK'
+          echo "\ngrep code 404"
           grep '404 Not Found' $HTTP_CODE
+          echo "\n grep code 200"
           grep '200 OK' $HTTP_CODE
 
           sleep 1
