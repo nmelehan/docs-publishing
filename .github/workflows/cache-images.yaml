@@ -39,7 +39,7 @@ jobs:
 
       - name: List contents of images dir
         continue-on-error: true
-        run: ${{ env.hugo_image_cache_path }}
+        run: ls -al ${{ env.hugo_image_cache_path }}
 
       - name: Install dependencies (Node)
         working-directory: ./docs-repo
