@@ -256,7 +256,7 @@ jobs:
           echo "\ngrep curl 404"
           curl -ILs $CHECK_URL | grep '404 Not Found'
           echo "\ngrep curl 200"
-          grep_response=$(curl -ILs $CHECK_URL | grep '200 OK')
+          grep_response=$(curl -ILs $CHECK_URL | grep -c '200 OK')
           echo $grep_response
           echo $HTTP_CODE
           echo $HTTP_CODE
