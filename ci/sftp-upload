@@ -1,4 +1,4 @@
-lpwd
+@lpwd
 lls -al
 lcd docs-repo/public/
 lpwd
@@ -8,6 +8,6 @@ lls -al
 cd docs
 ls -al
 
-mkdir docs-$GITHUB_SHA
-cd docs-$GITHUB_SHA
+mkdir docs-cicdtest-1
+cd docs-cicdtest-1
 @put -r *
