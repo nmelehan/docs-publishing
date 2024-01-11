@@ -248,18 +248,18 @@ jobs:
         for i in {1..30}
         do
           echo "curl $i"
-          curl -IL $CHECK_URL
+          curl -ILs $CHECK_URL
           echo "\ncapture code"
-          HTTP_CODE=$(curl -IL $CHECK_URL | grep 'HTTP')
+          HTTP_CODE=$(curl -ILs $CHECK_URL | grep 'HTTP')
           echo $HTTP_CODE
           echo "\ngrep curl 404"
-          curl -IL $CHECK_URL | grep '404 Not Found'
+          curl -ILs $CHECK_URL | grep '404 Not Found'
           echo "\ngrep curl 200"
-          curl -IL $CHECK_URL | grep '200 OK'
+          curl -ILs $CHECK_URL | grep '200 OK'
           echo "\ngrep code 404"
-          grep '404 Not Found' $HTTP_CODE
+          echo $HTTP_CODE | grep '404 Not Found'
           echo "\n grep code 200"
-          grep '200 OK' $HTTP_CODE
+          echo $HTTP_CODE | grep '200 OK'
 
           sleep 1
         done
