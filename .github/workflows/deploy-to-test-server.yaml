@@ -240,8 +240,8 @@ jobs:
       working-directory: ./docs-repo
       shell: bash
       run: |
-        # CHECK_URL=https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs-$GITHUB_SHA/
-        # echo $CHECK_URL
+        CHECK_URL="https:\/\/${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}\/docs-$GITHUB_SHA\/"
+        echo $CHECK_URL
 
         # Wait for server to unzip the tarball of the docs site
         for i in {1..30}
