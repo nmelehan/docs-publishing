@@ -247,7 +247,7 @@ jobs:
         echo $CHECK_URL
 
         # Wait for server to unzip the tarball of the docs site
-        for i in {1..30}
+        for i in {1..${{ env.unzip_timeout }}}
         do
           curl -ILs $CHECK_URL | grep 'HTTP' | grep '200 OK'
           if [ 0 -eq $? ]; then
