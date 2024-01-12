@@ -57,25 +57,34 @@ jobs:
       name: deploy_to_kitchen
 
     steps:
-    - name: Set up Hugo
+    - name: 1. Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
         hugo-version: '0.116.1'
 
-    - name: Checkout docs repo
+    - name: 2. Checkout docs repo
       uses: actions/checkout@v3
       with:
         path: 'docs-repo'
 
       # Debugging step so we can check if the right version
       # of the docs repo is checked out
-    - name: Print current docs repo branch/ref/commit
+    - name: [Debugging info] Print current docs repo branch/ref/commit
       working-directory: ./docs-repo
       run: |
         git status
         git log -1
 
-    - name: Get linode-docs-theme version
+    - name: 3. Set up SSH agent (linode-docs-theme repo deploy key)
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.LINODE_DOCS_THEME_DEPLOY_KEY_FOR_DOCS_DEPLOY_GHA }}
+
+    - name: 4. Clone docs theme repo
+      run: |
+        git clone git@github.com:$GITHUB_REPOSITORY_OWNER/linode-docs-theme linode-docs-theme-repo
+
+    - name: 5. Get linode-docs-theme commit hash from docs go.mod
       id: get-theme-version
       working-directory: ./docs-repo
       run: |
@@ -88,23 +97,14 @@ jobs:
         LINODE_DOCS_THEME_VERSION=$(hugo mod graph | grep linode-docs-theme | cut -d '+' -f 1 | grep -o '[^-]*$')
         echo "VERSION=$LINODE_DOCS_THEME_VERSION" >> $GITHUB_OUTPUT
 
-    - name: Set up SSH agent (linode-docs-theme repo deploy key)
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.LINODE_DOCS_THEME_DEPLOY_KEY_FOR_DOCS_DEPLOY_GHA }}
-
-    - name: Checkout docs theme repo
-      run: |
-        git clone git@github.com:$GITHUB_REPOSITORY_OWNER/linode-docs-theme linode-docs-theme-repo
-
-    - name: Check out theme repo commit from docs repo go.mod
+    - name: 6. Check out linode-docs-theme commit hash from docs go.mod
       working-directory: ./linode-docs-theme-repo
       run: |
         git checkout ${{ steps.get-theme-version.outputs.VERSION }}
 
       # Debugging step so we can check if the right version
       # of the Algolia admin tool is checked out
-    - name: Print Linode Algolia admin tool version
+    - name: [Debugging info] Print Linode Algolia admin tool version
       working-directory: ./linode-docs-theme-repo
       run: |
         cd scripts/linode_algolia_admin/
@@ -112,11 +112,11 @@ jobs:
 
       # Debugging step that lists the Hugo-generated images
       # directory *before* the imache cache restore step
-    - name: List contents of images dir
+    - name: [Debugging info] List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo_image_cache_path }}
 
-    - name: Restore Hugo generated images cache
+    - name: 7. Restore Hugo generated images cache
       uses: ylemkimon/cache-restore@v2
       with:
         path: ${{ env.hugo_image_cache_path }}
@@ -126,20 +126,20 @@ jobs:
       # Debugging step that lists the Hugo-generated images
       # directory *after* the imache cache restore step,
       # to make sure that the restore happened successfully
-    - name: List contents of images dir
+    - name: [Debugging info] List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo_image_cache_path }}
 
-    - name: Use Node.js
+    - name: 8. Install Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 14
 
-    - name: Install dependencies (Node)
+    - name: 9. Install dependencies (Node)
       working-directory: ./docs-repo
       run: npm ci
 
-    - name: Build Hugo
+    - name: 10. Build Hugo
       env:
         HUGOxPARAMSxSEARCH_CONFIG2xAPP_ID: ${{ vars.ALGOLIA_APP_ID }}
         HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
@@ -152,7 +152,7 @@ jobs:
 
       # Debugging step that lists the Hugo-rendered files
       # to make sure the site was built
-    - name: List rendered files
+    - name: [Debugging info] List rendered files
       working-directory: ./docs-repo
       run: |
         sudo apt install -y tree
@@ -161,7 +161,7 @@ jobs:
       # When Hugo builds, it renders search index data to a collection of
       # data files under public/. This step uploads that data to the
       # Algolia search backend
-    - name: Update Algolia (sandbox)
+    - name: 11. Update Algolia (sandbox)
       working-directory: ./linode-docs-theme-repo
       env:
         ALGOLIA_APP_ID: ${{ vars.ALGOLIA_APP_ID }}
@@ -199,7 +199,7 @@ jobs:
       # - Build Hugo again so that the navigation UI can be rendered with that
       #   updated info from Algolia
       # It's a little redundant, but solves the chicken-or-egg problem
-    - name: Build Hugo (second time)
+    - name: 12. Build Hugo (second time)
       env:
         HUGOxPARAMSxSEARCH_CONFIG2xAPP_ID: ${{ vars.ALGOLIA_APP_ID }}
         HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
@@ -210,16 +210,40 @@ jobs:
         hugo config
         hugo -b "${{ secrets.DOCS_WEBSITE_URL }}" --gc --minify -d public
 
-    - name: Set up SSH agent (docs webserver key)
+    - name: 13. Set up SSH agent (docs webserver key)
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.DOCS_WEBSITE_SFTP_PRIVATE_KEY }}
 
-    - name: SFTP upload site to webserver
+      # Make a tarball of the site, because it will upload much, much quicker
+      # than the uncompressed rendered site. The commit for this workflow run
+      # is encoded in the name of the tarball.
+    - name: 14. Create tarball of docs website
+      run: |
+        tar --owner=${{ secrets.DOCS_WEBSITE_USER }} --group=${{ secrets.DOCS_WEBSITE_USER }} -czf docs-$GITHUB_SHA.tar.gz -C docs-repo/public/ .
+
+      # Upload the tarball to the website document root. Before the upload, the
+      # document root looks like this:
+      # /var/www/docs/
+      #               docs -> docs-PREVIOUS_GITHUB_SHA
+      #               docs-PREVIOUS_GITHUB_SHA/
+      #               archive/
+      #
+      # Where PREVIOUS_GITHUB_SHA is the commit for the last time the deploy
+      # workflow ran, and the docs-PREVIOUS_GITHUB_SHA/ folder contains the
+      # rendered site from that last workflow run. `docs` is a symlink to that
+      # folder. archive/ is a folder that contains old tarballs from
+      # previous workflow runs.
+      #
+      # After the upload, it looks like:
+      # /var/www/docs/
+      #               docs -> docs-PREVIOUS_GITHUB_SHA
+      #               docs-PREVIOUS_GITHUB_SHA/
+      #               docs-CURRENT_GITHUB_SHA.tar.gz
+      #               archive/
+    - name: 15. SFTP upload website tarball to webserver
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
-
-        tar --owner=${{ secrets.DOCS_WEBSITE_USER }} --group=${{ secrets.DOCS_WEBSITE_USER }} -czf docs-$GITHUB_SHA.tar.gz -C docs-repo/public/ .
 
         sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
         lpwd
@@ -234,8 +258,26 @@ jobs:
 
         rm sftp_known_hosts
 
-    - name: Wait for unzip
-      working-directory: ./docs-repo
+      # The server has a script that unzips any tarballs it finds
+      # in the website document root. There is a systemd service installed
+      # that runs the script roughly every 30 seconds. This workflow step
+      # waits for the server to run this script. To check if the tarball has
+      # been unzipped, we curl the /docs-CURRENT_GITHUB_SHA/ path on the server.
+      # If it hasn't been unzipped yet, this path won't exist, and the response
+      # will be a 404. If it has been unzipped, the path will exist, and the
+      # response will be a 200.
+      #
+      # The script also moves the tarball into the archive/ folder under the
+      # website document root.
+      #
+      # After the script has run, the document root looks like:
+      # /var/www/docs/
+      #               docs -> docs-PREVIOUS_GITHUB_SHA
+      #               docs-PREVIOUS_GITHUB_SHA/
+      #               docs-CURRENT_GITHUB_SHA/
+      #               archive/
+      #                       docs-CURRENT_GITHUB_SHA.tar.gz
+    - name: 16. Wait for server to unzip tarball
       shell: bash
       run: |
         set +e
@@ -257,8 +299,19 @@ jobs:
         echo "Server did not unzip docs tarball before ${{ env.unzip_timeout }} seconds"
         exit 1
 
-    - name: SFTP symlink docs folder on webserver
-      # working-directory: ./docs-repo
+      # Update the `docs` symlink in the website document root to point to the
+      # new folder created for the unzipped tarball. The website document root
+      # will look like this after the symlink is updated:
+      # /var/www/docs/
+      #               docs -> docs-CURRENT_GITHUB_SHA
+      #               docs-PREVIOUS_GITHUB_SHA/
+      #               docs-CURRENT_GITHUB_SHA/
+      #               archive/
+      #                       docs-CURRENT_GITHUB_SHA.tar.gz
+      #
+      # Note: a garbage collection script is periodically run on the server
+      # to remove the previous docs folder and older tarballs under archive/
+    - name: 17. SFTP symlink docs folder on webserver
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
