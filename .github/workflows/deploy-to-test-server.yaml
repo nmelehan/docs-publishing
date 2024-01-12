@@ -69,7 +69,7 @@ jobs:
 
       # Debugging step so we can check if the right version
       # of the docs repo is checked out
-    - name: [Debugging info] Print current docs repo branch/ref/commit
+    - name: (Debugging info) Print current docs repo branch/ref/commit
       working-directory: ./docs-repo
       run: |
         git status
@@ -104,7 +104,7 @@ jobs:
 
       # Debugging step so we can check if the right version
       # of the Algolia admin tool is checked out
-    - name: [Debugging info] Print Linode Algolia admin tool version
+    - name: (Debugging info) Print Linode Algolia admin tool version
       working-directory: ./linode-docs-theme-repo
       run: |
         cd scripts/linode_algolia_admin/
@@ -112,7 +112,7 @@ jobs:
 
       # Debugging step that lists the Hugo-generated images
       # directory *before* the imache cache restore step
-    - name: [Debugging info] List contents of images dir
+    - name: (Debugging info) List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo_image_cache_path }}
 
@@ -126,7 +126,7 @@ jobs:
       # Debugging step that lists the Hugo-generated images
       # directory *after* the imache cache restore step,
       # to make sure that the restore happened successfully
-    - name: [Debugging info] List contents of images dir
+    - name: (Debugging info) List contents of images dir
       continue-on-error: true
       run: ls -al ${{ env.hugo_image_cache_path }}
 
@@ -152,7 +152,7 @@ jobs:
 
       # Debugging step that lists the Hugo-rendered files
       # to make sure the site was built
-    - name: [Debugging info] List rendered files
+    - name: (Debugging info) List rendered files
       working-directory: ./docs-repo
       run: |
         sudo apt install -y tree
