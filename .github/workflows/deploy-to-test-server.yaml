@@ -51,6 +51,7 @@ env:
 
 jobs:
   deploy-to-main-staging-server:
+    if: github.repository_owner == ${{ vars.GHA_SKIP_CHECK_REPO_OWNER }}
     runs-on: ubuntu-latest
 
     environment:
@@ -145,6 +146,7 @@ jobs:
         HUGOxPARAMSxSEARCH_CONFIG2xAPI_KEY: ${{ vars.ALGOLIA_SEARCH_KEY }}
         HUGOxPARAMSxSEARCH_CONFIG2xINDEX_PREFIX: ${{ vars.ALGOLIA_INDEX_PREFIX }}
         HUGO_ENVIRONMENT: ${{ vars.HUGO_ENVIRONMENT }}
+        HUGO_IGNOREERRORS: algolia-cachewarmer
       working-directory: ./docs-repo
       run: |
         hugo config
