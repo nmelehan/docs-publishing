@@ -207,7 +207,15 @@ jobs:
         hugo config
         hugo -b "${{ secrets.DOCS_WEBSITE_URL }}" --gc --minify -d public
 
-    - name: 13. Set up SSH agent (docs webserver key)
+      # The gitcommithash.txt file is used in the last workflow step to move
+      # previous versions of the docs site into an archive/ folder on the
+      # webserver
+    - name: 13. Add gitcommithash.txt to rendered public/ folder
+      working-directory: ./docs-repo
+      run: |
+        echo $GITHUB_SHA > public/gitcommithash.txt
+
+    - name: 14. Set up SSH agent (docs webserver key)
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.DOCS_WEBSITE_SFTP_PRIVATE_KEY }}
@@ -215,7 +223,7 @@ jobs:
       # Make a tarball of the site, because it will upload much, much quicker
       # than the uncompressed rendered site. The commit for this workflow run
       # is encoded in the name of the tarball.
-    - name: 14. Create tarball of docs website
+    - name: 15. Create tarball of docs website
       run: |
         tar --owner=${{ secrets.DOCS_WEBSITE_USER }} --group=${{ secrets.DOCS_WEBSITE_USER }} -czf docs-$GITHUB_SHA.tar.gz -C docs-repo/public/ .
 
@@ -244,7 +252,7 @@ jobs:
       # /var/docs/docs/. If it was uploaded directly to /var/www/docs/, then
       # the unzip script (see next workflow step for description) could try
       # to unzip a half-uploaded tarball.
-    - name: 15. SFTP upload website tarball to webserver
+    - name: 16. SFTP upload website tarball to webserver
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
@@ -281,7 +289,7 @@ jobs:
       #               docs-PREVIOUS_GITHUB_SHA/
       #               docs-CURRENT_GITHUB_SHA/
       #               archive/
-    - name: 16. Wait for server to unzip tarball
+    - name: 17. Wait for server to unzip tarball
       shell: bash
       run: |
         set +e
@@ -305,29 +313,25 @@ jobs:
         echo "Server did not unzip docs tarball before ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds"
         exit 1
 
-    - name: 17. Get commit hash of previous deploy
+    - name: 18. Get commit hash of previous deploy
       id: get-previous-deploy-commit
       shell: bash
       run: |
         gitcommithash=$(curl -s ${{ secrets.DOCS_WEBSITE_URL }}/gitcommithash.txt)
         echo "Hash is $gitcommithash"
-        echo "HASH=$gitcommithash" >> $GITHUB_OUTPUT"
+        echo "HASH=$gitcommithash" >> $GITHUB_OUTPUT
 
       # Update the `docs` symlink in the website document root to point to the
-      # new folder created for the unzipped tarball. The old docs folder is
-      # moved under the archive/ folder.
+      # new folder created for the unzipped tarball.
       #
-      # The website document root
-      # will look like this after the symlink is updated:
+      # The website document root will look like this after the symlink is
+      # updated:
       # /var/www/docs/
       #               docs -> docs-CURRENT_GITHUB_SHA
       #               docs-CURRENT_GITHUB_SHA/
+      #               docs-PREVIOUS_GITHUB_SHA
       #               archive/
-      #                       docs-PREVIOUS_GITHUB_SHA/
-      #
-      # Note: a garbage collection script is periodically run on the server
-      # to remove the previous docs folders under archive/
-    - name: 18. SFTP symlink docs folder on webserver
+    - name: 19. SFTP symlink docs folder on webserver
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
@@ -341,6 +345,32 @@ jobs:
 
         ln -s docs-$GITHUB_SHA new_docs
         rename new_docs docs
+        rename docs-${{ steps.get-previous-deploy-commit.outputs.HASH }} archive/docs-${{ steps.get-previous-deploy-commit.outputs.HASH }}
+        ls -al
+        exit
+        EOF
+
+        rm sftp_known_hosts
+
+      # Move the previous docs content folder from the last release under
+      # the archive/ folder.
+      #
+      # The website document root will look like this afterward:
+      # /var/www/docs/
+      #               docs -> docs-CURRENT_GITHUB_SHA
+      #               docs-CURRENT_GITHUB_SHA/
+      #               archive/
+      #                       docs-PREVIOUS_GITHUB_SHA/
+      #
+      # Note: a garbage collection script is periodically run on the server
+      # to remove the previous docs folders under archive/
+    - name: 20. SFTP move previous docs deploy folder under archive/ folder
+      run: |
+        echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
+
+        sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
+        cd docs
+        ls -al
         rename docs-${{ steps.get-previous-deploy-commit.outputs.HASH }} archive/docs-${{ steps.get-previous-deploy-commit.outputs.HASH }}
         ls -al
         ls -al archive
