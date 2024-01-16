@@ -56,7 +56,7 @@ jobs:
     - name: 1. Set up Hugo
       uses: peaceiris/actions-hugo@v2
       with:
-        hugo-version: '0.116.1'
+        hugo-version: ${{ vars.HUGO_VERSION }}
 
     - name: 2. Checkout docs repo
       uses: actions/checkout@v3
@@ -272,9 +272,8 @@ jobs:
       # If it hasn't been unzipped yet, this path won't exist, and the response
       # will be a 404. If it has been unzipped, the path will exist, and the
       # response will be a 200.
-      #
-      # The script also moves the tarball into the archive/ folder under the
-      # website document root.
+
+      # The unzipped tarball is deleted by the script on the server.
       #
       # After the script has run, the document root looks like:
       # /var/www/docs/
@@ -282,7 +281,6 @@ jobs:
       #               docs-PREVIOUS_GITHUB_SHA/
       #               docs-CURRENT_GITHUB_SHA/
       #               archive/
-      #                       docs-CURRENT_GITHUB_SHA.tar.gz
     - name: 16. Wait for server to unzip tarball
       shell: bash
       run: |
@@ -308,17 +306,19 @@ jobs:
         exit 1
 
       # Update the `docs` symlink in the website document root to point to the
-      # new folder created for the unzipped tarball. The website document root
+      # new folder created for the unzipped tarball. The old docs folder is
+      # moved under the archive/ folder.
+      #
+      # The website document root
       # will look like this after the symlink is updated:
       # /var/www/docs/
       #               docs -> docs-CURRENT_GITHUB_SHA
-      #               docs-PREVIOUS_GITHUB_SHA/
       #               docs-CURRENT_GITHUB_SHA/
       #               archive/
-      #                       docs-CURRENT_GITHUB_SHA.tar.gz
+      #                       docs-PREVIOUS_GITHUB_SHA/
       #
       # Note: a garbage collection script is periodically run on the server
-      # to remove the previous docs folder and older tarballs under archive/
+      # to remove the previous docs folders under archive/
     - name: 17. SFTP symlink docs folder on webserver
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
