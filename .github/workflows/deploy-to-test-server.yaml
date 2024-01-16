@@ -238,6 +238,12 @@ jobs:
       #               docs-PREVIOUS_GITHUB_SHA/
       #               docs-CURRENT_GITHUB_SHA.tar.gz
       #               archive/
+      #
+      # Note that the tarball is temporarily uploaded to
+      # /var/docs/docs/new-tarball-uploads/, and then moved into
+      # /var/docs/docs/. If it was uploaded directly to /var/www/docs/, then
+      # the unzip script (see next workflow step for description) could try
+      # to unzip a half-uploaded tarball.
     - name: 15. SFTP upload website tarball to webserver
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
@@ -252,7 +258,7 @@ jobs:
 
         put docs-$GITHUB_SHA.tar.gz
         cd ..
-        mv new-tarball-uploads/docs-$GITHUB_SHA.tar.gz .
+        rename new-tarball-uploads/docs-$GITHUB_SHA.tar.gz docs-$GITHUB_SHA.tar.gz
         exit
         EOF
 
