@@ -8,7 +8,6 @@ on:
 env:
   hugo_image_cache_name: hugo-generated-images
   hugo_image_cache_path: docs-repo/resources/_gen/images/
-  unzip_timeout: 120
 
 # This workflow builds the site with Hugo, syncs it over to a staging web
 # server, and updates the sandbox Algolia app to reflect the content in the
@@ -115,21 +114,21 @@ jobs:
       # directory *before* the imache cache restore step
     - name: (Debugging info) List contents of images dir
       continue-on-error: true
-      run: ls -al ${{ env.hugo_image_cache_path }}
+      run: ls -al ${{ vars.HUGO_IMAGE_CACHE_PATH }}
 
     - name: 7. Restore Hugo generated images cache
       uses: ylemkimon/cache-restore@v2
       with:
-        path: ${{ env.hugo_image_cache_path }}
-        key: ${{ env.hugo_image_cache_name }}
-        restore-keys: ${{ env.hugo_image_cache_name }}
+        path: ${{ vars.HUGO_IMAGE_CACHE_PATH }}
+        key: ${{ vars.HUGO_IMAGE_CACHE_NAME }}
+        restore-keys: ${{ vars.HUGO_IMAGE_CACHE_NAME }}
 
       # Debugging step that lists the Hugo-generated images
       # directory *after* the imache cache restore step,
       # to make sure that the restore happened successfully
     - name: (Debugging info) List contents of images dir
       continue-on-error: true
-      run: ls -al ${{ env.hugo_image_cache_path }}
+      run: ls -al ${{ vars.HUGO_IMAGE_CACHE_PATH }}
 
     - name: 8. Install Node.js
       uses: actions/setup-node@v3
@@ -287,10 +286,10 @@ jobs:
         CHECK_URL="https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs-$GITHUB_SHA/"
         echo "Waiting for server to unzip uploaded docs site tarball:"
         echo "- Every one second, checking $CHECK_URL for an HTTP 200 OK response"
-        echo "- Waiting up to 120 seconds..."
+        echo "- Waiting up to ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds..."
 
         # Wait for server to unzip the tarball of the docs site
-        for i in {1..${{ env.unzip_timeout }}}
+        for i in {1..${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }}}
         do
           curl -ILs $CHECK_URL | grep 'HTTP' | grep '200 OK'
           if [ 0 -eq $? ]; then
@@ -300,7 +299,7 @@ jobs:
           sleep 1
         done
 
-        echo "Server did not unzip docs tarball before ${{ env.unzip_timeout }} seconds"
+        echo "Server did not unzip docs tarball before ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds"
         exit 1
 
       # Update the `docs` symlink in the website document root to point to the
