@@ -305,6 +305,14 @@ jobs:
         echo "Server did not unzip docs tarball before ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds"
         exit 1
 
+    - name: 17. Get commit hash of previous deploy
+      id: get-previous-deploy-commit
+      shell: bash
+      run: |
+        gitcommithash=$(curl -s ${{ secrets.DOCS_WEBSITE_URL }}/gitcommithash.txt)
+        echo "Hash is $gitcommithash"
+        echo "HASH=$gitcommithash" >> $GITHUB_OUTPUT"
+
       # Update the `docs` symlink in the website document root to point to the
       # new folder created for the unzipped tarball. The old docs folder is
       # moved under the archive/ folder.
@@ -319,7 +327,7 @@ jobs:
       #
       # Note: a garbage collection script is periodically run on the server
       # to remove the previous docs folders under archive/
-    - name: 17. SFTP symlink docs folder on webserver
+    - name: 18. SFTP symlink docs folder on webserver
       run: |
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
@@ -333,7 +341,9 @@ jobs:
 
         ln -s docs-$GITHUB_SHA new_docs
         rename new_docs docs
+        rename docs-${{ steps.get-previous-deploy-commit.outputs.HASH }} archive/docs-${{ steps.get-previous-deploy-commit.outputs.HASH }}
         ls -al
+        ls -al archive
         exit
         EOF
 
