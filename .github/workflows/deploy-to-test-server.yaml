@@ -317,7 +317,7 @@ jobs:
       id: get-previous-deploy-commit
       shell: bash
       run: |
-        gitcommithash=$(curl -s ${{ secrets.DOCS_WEBSITE_URL }}/gitcommithash.txt)
+        gitcommithash=$(curl -s https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/gitcommithash.txt)
         echo "Hash is $gitcommithash"
         echo "HASH=$gitcommithash" >> $GITHUB_OUTPUT
 
@@ -345,7 +345,6 @@ jobs:
 
         ln -s docs-$GITHUB_SHA new_docs
         rename new_docs docs
-        rename docs-${{ steps.get-previous-deploy-commit.outputs.HASH }} archive/docs-${{ steps.get-previous-deploy-commit.outputs.HASH }}
         ls -al
         exit
         EOF
@@ -364,17 +363,17 @@ jobs:
       #
       # Note: a garbage collection script is periodically run on the server
       # to remove the previous docs folders under archive/
-    - name: 20. SFTP move previous docs deploy folder under archive/ folder
-      run: |
-        echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
+    # - name: 20. SFTP move previous docs deploy folder under archive/ folder
+    #   run: |
+    #     echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
-        sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
-        cd docs
-        ls -al
-        rename docs-${{ steps.get-previous-deploy-commit.outputs.HASH }} archive/docs-${{ steps.get-previous-deploy-commit.outputs.HASH }}
-        ls -al
-        ls -al archive
-        exit
-        EOF
+    #     sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
+    #     cd docs
+    #     ls -al
+    #     rename docs-${{ steps.get-previous-deploy-commit.outputs.HASH }} archive/docs-${{ steps.get-previous-deploy-commit.outputs.HASH }}
+    #     ls -al
+    #     ls -al archive
+    #     exit
+    #     EOF
 
-        rm sftp_known_hosts
+    #     rm sftp_known_hosts
