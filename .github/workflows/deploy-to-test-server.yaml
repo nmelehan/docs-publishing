@@ -335,6 +335,12 @@ jobs:
       run: |
         echo "commit hash from last step: [${{ steps.get-previous-deploy-commit.outputs.HASH }}]"
 
+        if [ -z "${{ steps.get-previous-deploy-commit.outputs.HASH }}" ]; then
+          echo "hash is blank"
+        else
+          echo "hash is set to ${{ steps.get-previous-deploy-commit.outputs.HASH }}"
+        fi
+
       # Update the `docs` symlink in the website document root to point to the
       # new folder created for the unzipped tarball.
       #
