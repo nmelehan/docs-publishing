@@ -320,7 +320,7 @@ jobs:
       run: |
         set +e
 
-        GIT_COMMIT_HASH_URL=https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/gitcommithash.txt
+        GIT_COMMIT_HASH_URL=https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs/gitcommithash.txt
 
         curl -ILs $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
         if [ 0 -eq $? ]; then
