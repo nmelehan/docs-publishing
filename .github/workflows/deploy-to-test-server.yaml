@@ -311,6 +311,7 @@ jobs:
         done
 
         echo "Server did not unzip docs tarball before ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds"
+        echo "This is often because there is not enough space on server. An administrator should review the available disk space on the server."
         exit 1
 
     - name: 18. Get commit hash of previous deploy
