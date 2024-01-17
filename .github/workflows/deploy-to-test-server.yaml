@@ -373,22 +373,22 @@ jobs:
       #
       # Note: a garbage collection script is periodically run on the server
       # to remove the previous docs folders under archive/
-    - name: 20. SFTP move previous docs deploy folder under archive/ folder
-      run: |
-        echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
+    # - name: 20. SFTP move previous docs deploy folder under archive/ folder
+    #   run: |
+    #     echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
 
-        if [ -z "${{ steps.get-previous-deploy-commit.outputs.HASH }}" ]; then
-          echo "No commit hash for previous deploy was found. This happens when the server is displaying the initial setup instructions. The setup instructions directory is not moved to the archive folder."
-        else
-          sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
-          cd docs
-          ls -al
-          rename docs-${{ steps.get-previous-deploy-commit.outputs.HASH }} archive/docs-${{ steps.get-previous-deploy-commit.outputs.HASH }}
-          ls -al
-          ls -al archive
-          exit
-          EOF
-        fi
+    #     if [ -z "${{ steps.get-previous-deploy-commit.outputs.HASH }}" ]; then
+    #       echo "No commit hash for previous deploy was found. This happens when the server is displaying the initial setup instructions. The setup instructions directory is not moved to the archive folder."
+    #     else
+    #       sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
+    #       cd docs
+    #       ls -al
+    #       rename docs-${{ steps.get-previous-deploy-commit.outputs.HASH }} archive/docs-${{ steps.get-previous-deploy-commit.outputs.HASH }}
+    #       ls -al
+    #       ls -al archive
+    #       exit
+    #       EOF
+    #     fi
 
-        rm sftp_known_hosts
+    #     rm sftp_known_hosts
