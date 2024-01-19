@@ -341,25 +341,25 @@ jobs:
       #
       # Note: a garbage collection script is periodically run on the server
       # to remove the previous docs deployment folders
-    - name: 19. SFTP symlink docs folder on webserver
-      run: |
-        echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
+    # - name: 19. SFTP symlink docs folder on webserver
+    #   run: |
+    #     echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT }}" > sftp_known_hosts
 
-        sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
-        lpwd
-        lls -al
-        pwd
+    #     sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
+    #     lpwd
+    #     lls -al
+    #     pwd
 
-        cd docs
-        ls -al
+    #     cd docs
+    #     ls -al
 
-        ln -s docs-$GITHUB_SHA new_docs
-        rename new_docs docs
-        ls -al
-        exit
-        EOF
+    #     ln -s docs-$GITHUB_SHA new_docs
+    #     rename new_docs docs
+    #     ls -al
+    #     exit
+    #     EOF
 
-        rm sftp_known_hosts
+    #     rm sftp_known_hosts
 
     - name: 20. Verify commit hash of deployment
       shell: bash
