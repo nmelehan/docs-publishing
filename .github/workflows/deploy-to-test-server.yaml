@@ -368,7 +368,7 @@ jobs:
         NEW_GIT_COMMIT_HASH=$(curl -s $GIT_COMMIT_HASH_URL)
         echo "(new hash:$NEW_GIT_COMMIT_HASH)"
 
-        if [ 0 -eq $? ]; then
+        if [ -z "${{ steps.get-previous-deploy-commit.outputs.HASH }}" ]; then
           echo "Hash is $NEW_GIT_COMMIT_HASH"
         else
           echo "No gitcommithash.txt exists; this is probably because the webserver is currently displaying the initial setup instructions."
