@@ -292,7 +292,7 @@ jobs:
     #   run: |
     #     set +e
 
-    #     CHECK_URL="${{ secrets.DOCS_WEBSITE_URL_NO_CDN }}/docs-$GITHUB_SHA/"
+    #     CHECK_URL="${{ DOCS_WEBSITE_URL_NO_CDN }}/docs-$GITHUB_SHA/"
     #     echo "Waiting for server to unzip uploaded docs site tarball:"
     #     echo "- Every one second, checking $CHECK_URL for an HTTP 200 OK response"
     #     echo "- Waiting up to ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds..."
@@ -318,7 +318,7 @@ jobs:
     #   run: |
     #     set +e
 
-    #     GIT_COMMIT_HASH_URL=${{ secrets.DOCS_WEBSITE_URL_NO_CDN }}/docs/gitcommithash.txt
+    #     GIT_COMMIT_HASH_URL=${{ DOCS_WEBSITE_URL_NO_CDN }}/docs/gitcommithash.txt
 
     #     curl -ILs $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
     #     if [ 0 -eq $? ]; then
@@ -364,14 +364,22 @@ jobs:
       run: |
         set +e
 
-        GIT_COMMIT_HASH_URL=${{ secrets.DOCS_WEBSITE_URL_NO_CDN }}/docs/gitcommithash.txt
-        NEW_GIT_COMMIT_HASH=$(curl -s $GIT_COMMIT_HASH_URL)
-        echo "(new hash:$NEW_GIT_COMMIT_HASH)"
+        GIT_COMMIT_HASH_URL=${{ DOCS_WEBSITE_URL_NO_CDN }}/docs/gitcommithash.txt
 
-        if [ -z "${{ steps.get-previous-deploy-commit.outputs.HASH }}" ]; then
-          echo "Hash is $NEW_GIT_COMMIT_HASH"
+        curl -ILs $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
+        if [ 0 -eq $? ]; then
+          CURRENT_GIT_COMMIT_HASH=$(curl -s $GIT_COMMIT_HASH_URL)
+          echo "Hash reported by server is $CURRENT_GIT_COMMIT_HASH"
+          if [ $CURRENT_GIT_COMMIT_HASH == $GITHUB_SHA ]; then
+            exit 0
+          else
+            echo "Commit hash of workflow run is $GITHUB_SHA, but commit hash reported by server is $CURRENT_GIT_COMMIT_HASH.  Deployment to server has failed. Please inspect workflow logs and server logs."
+            exit 1
+          fi
+
         else
-          echo "No gitcommithash.txt exists; this is probably because the webserver is currently displaying the initial setup instructions."
+          echo "No gitcommithash.txt exists on server after deployment. Deployment to server has failed. Please inspect workflow logs and server logs."
+          exit 1
         fi
 
       # Move the previous docs content folder from the last release under
