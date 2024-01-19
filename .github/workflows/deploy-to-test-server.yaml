@@ -294,7 +294,7 @@ jobs:
       run: |
         set +e
 
-        CHECK_URL="https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs-$GITHUB_SHA/"
+        CHECK_URL="${{ DOCS_WEBSITE_URL_NO_CDN }}/docs-$GITHUB_SHA/"
         echo "Waiting for server to unzip uploaded docs site tarball:"
         echo "- Every one second, checking $CHECK_URL for an HTTP 200 OK response"
         echo "- Waiting up to ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds..."
@@ -320,7 +320,7 @@ jobs:
       run: |
         set +e
 
-        GIT_COMMIT_HASH_URL=https://${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }}/docs/gitcommithash.txt
+        GIT_COMMIT_HASH_URL=${{ DOCS_WEBSITE_URL_NO_CDN }}/docs/gitcommithash.txt
 
         curl -ILs $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
         if [ 0 -eq $? ]; then
