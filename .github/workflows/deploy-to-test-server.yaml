@@ -227,27 +227,24 @@ jobs:
 
       # Upload the tarball to the website document root. Before the upload, the
       # document root looks like this:
-      # /var/www/docs/
+      # {{ document_root }}/
       #               docs -> docs-PREVIOUS_GITHUB_SHA
       #               docs-PREVIOUS_GITHUB_SHA/
-      #               archive/
       #
       # Where PREVIOUS_GITHUB_SHA is the commit for the last time the deploy
       # workflow ran, and the docs-PREVIOUS_GITHUB_SHA/ folder contains the
       # rendered site from that last workflow run. `docs` is a symlink to that
-      # folder. archive/ is a folder that contains old tarballs from
-      # previous workflow runs.
+      # folder.
       #
       # After the upload, it looks like:
-      # /var/www/docs/
+      # {{ document_root }}/
       #               docs -> docs-PREVIOUS_GITHUB_SHA
       #               docs-PREVIOUS_GITHUB_SHA/
       #               docs-CURRENT_GITHUB_SHA.tar.gz
-      #               archive/
       #
       # Note that the tarball is temporarily uploaded to
-      # /var/docs/docs/new-tarball-uploads/, and then moved into
-      # /var/docs/docs/. If it was uploaded directly to /var/www/docs/, then
+      # {{ document_root }}/new-tarball-uploads/, and then moved into
+      # {{ document_root }}/. If it was uploaded directly to {{ document_root }}/, then
       # the unzip script (see next workflow step for description) could try
       # to unzip a half-uploaded tarball.
     - name: 16. SFTP upload website tarball to webserver
@@ -282,11 +279,10 @@ jobs:
       # The unzipped tarball is deleted by the script on the server.
       #
       # After the script has run, the document root looks like:
-      # /var/www/docs/
+      # {{ document_root }}/
       #               docs -> docs-PREVIOUS_GITHUB_SHA
       #               docs-PREVIOUS_GITHUB_SHA/
       #               docs-CURRENT_GITHUB_SHA/
-      #               archive/
     - name: 17. Wait for server to unzip tarball
       shell: bash
       run: |
@@ -334,7 +330,7 @@ jobs:
       #
       # The website document root will look like this after the symlink is
       # updated:
-      # /var/www/docs/
+      # {{ document_root }}/
       #               docs -> docs-CURRENT_GITHUB_SHA
       #               docs-CURRENT_GITHUB_SHA/
       #               docs-PREVIOUS_GITHUB_SHA
@@ -348,7 +344,6 @@ jobs:
         sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION }} <<EOF
         lpwd
         lls -al
-        pwd
 
         cd docs
         ls -al
