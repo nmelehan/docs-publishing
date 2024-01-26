@@ -293,23 +293,25 @@ jobs:
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT_2 }}" >> sftp_known_hosts
 
         upload_to_destination() {
-          sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@$1 <<EOF
-          lpwd
-          lls -al
+        echo "Uploading tarball to server $1"
 
-          cd docs
-          ls -al
-          cd new-tarball-uploads
+        sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@$2 <<EOF
+        lpwd
+        lls -al
 
-          put docs-$GITHUB_SHA.tar.gz
-          cd ..
-          rename new-tarball-uploads/docs-$GITHUB_SHA.tar.gz docs-$GITHUB_SHA.tar.gz
-          exit
+        cd docs
+        ls -al
+        cd new-tarball-uploads
+
+        put docs-$GITHUB_SHA.tar.gz
+        cd ..
+        rename new-tarball-uploads/docs-$GITHUB_SHA.tar.gz docs-$GITHUB_SHA.tar.gz
+        exit
         EOF
         }
 
-        upload_to_destination "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_1 }}"
-        upload_to_destination "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }}"
+        upload_to_destination "1" "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_1 }}"
+        upload_to_destination "2" "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }}"
 
         rm sftp_known_hosts
 
@@ -335,30 +337,32 @@ jobs:
         set +e
 
         check_for_unzipped_directory() {
-          CHECK_URL="$1/docs-$GITHUB_SHA/"
-          echo "Waiting for server to unzip uploaded docs site tarball:"
-          echo "- Every one second, checking $CHECK_URL for an HTTP 200 OK response"
-          echo "- Waiting up to ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds..."
+        echo "Checking for unzipped tarball on server $1"
 
-          # Wait for server to unzip the tarball of the docs site
-          for i in {1..${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }}}
-          do
-            curl -ILs $CHECK_URL | grep 'HTTP' | grep '200 OK'
-            if [ 0 -eq $? ]; then
-              echo 0
-              exit 0
-            fi
+        CHECK_URL="$2/docs-$GITHUB_SHA/"
+        echo "Waiting for server to unzip uploaded docs site tarball:"
+        echo "- Every one second, checking $CHECK_URL for an HTTP 200 OK response"
+        echo "- Waiting up to ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds..."
 
-            sleep 1
-          done
+        # Wait for server to unzip the tarball of the docs site
+        for i in {1..${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }}}
+        do
+          curl -ILs $CHECK_URL | grep 'HTTP' | grep '200 OK'
+          if [ 0 -eq $? ]; then
+            echo 0
+            exit 0
+          fi
 
-          echo "Server did not unzip docs tarball before ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds"
-          echo "This is often because there is not enough space on server. An administrator should review the available disk space on the server."
-          echo 1
-          exit 1
+          sleep 1
+        done
+
+        echo "Server did not unzip docs tarball before ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds"
+        echo "This is often because there is not enough space on server. An administrator should review the available disk space on the server."
+        echo 1
+        exit 1
         }
 
-        if [ check_for_unzipped_directory "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" && check_for_unzipped_directory "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}" ]; then
+        if check_for_unzipped_directory "1" "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" && check_for_unzipped_directory "2" "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}"; then
           exit 0
         else
           exit 1
@@ -371,20 +375,22 @@ jobs:
         set +e
 
         get_current_commit_hash_on_server() {
-          GIT_COMMIT_HASH_URL="$1/docs/gitcommithash.txt"
+        echo "Fetching commit hash for currently deployed website on server $1"
 
-          curl -ILs $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
-          if [ 0 -eq $? ]; then
-            GIT_COMMIT_HASH=$(curl -s $GIT_COMMIT_HASH_URL)
-            echo "Hash is $GIT_COMMIT_HASH"
-            echo "$2=$GIT_COMMIT_HASH" >> $GITHUB_OUTPUT
-          else
-            echo "No gitcommithash.txt exists; this is probably because the webserver is currently displaying the initial setup instructions."
-          fi
+        GIT_COMMIT_HASH_URL="$2/docs/gitcommithash.txt"
+
+        curl -ILs $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
+        if [ 0 -eq $? ]; then
+          GIT_COMMIT_HASH=$(curl -s $GIT_COMMIT_HASH_URL)
+          echo "Hash is $GIT_COMMIT_HASH"
+          echo "$2=$GIT_COMMIT_HASH" >> $GITHUB_OUTPUT
+        else
+          echo "No gitcommithash.txt exists; this is probably because the webserver is currently displaying the initial setup instructions."
+        fi
         }
 
-        get_current_commit_hash_on_server "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" "HASH_1"
-        get_current_commit_hash_on_server "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}" "HASH_2"
+        get_current_commit_hash_on_server "1" "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" "HASH_1"
+        get_current_commit_hash_on_server "2" "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}" "HASH_2"
 
       # Update the `docs` symlink in the website document root to point to the
       # new folder created for the unzipped tarball.
@@ -404,22 +410,24 @@ jobs:
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT_2 }}" >> sftp_known_hosts
 
         symlink_docs_on_destination() {
-          sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@$1 <<EOF
-          lpwd
-          lls -al
+        echo "Updating docs symlink on server $1"
 
-          cd docs
-          ls -al
+        sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@$2 <<EOF
+        lpwd
+        lls -al
 
-          ln -s docs-$GITHUB_SHA new_docs
-          rename new_docs docs
-          ls -al
-          exit
+        cd docs
+        ls -al
+
+        ln -s docs-$GITHUB_SHA new_docs
+        rename new_docs docs
+        ls -al
+        exit
         EOF
         }
 
-        symlink_docs_on_destination "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_1 }}"
-        symlink_docs_on_destination "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }}"
+        symlink_docs_on_destination "1" "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_1 }}"
+        symlink_docs_on_destination "2" ${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }}"
 
         rm sftp_known_hosts
 
@@ -429,29 +437,31 @@ jobs:
         set +e
 
         verify_hash_updated() {
-          GIT_COMMIT_HASH_URL="$1/docs/gitcommithash.txt"
+        echo "Verifying commit hash on server $1 matches new deployment"
 
-          curl -ILs $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
-          if [ 0 -eq $? ]; then
-            CURRENT_GIT_COMMIT_HASH=$(curl -s $GIT_COMMIT_HASH_URL)
-            echo "Hash reported by server is $CURRENT_GIT_COMMIT_HASH"
-            if [ $CURRENT_GIT_COMMIT_HASH == $GITHUB_SHA ]; then
-              echo 0
-              exit 0
-            else
-              echo "Commit hash of workflow run is $GITHUB_SHA, but commit hash reported by server is $CURRENT_GIT_COMMIT_HASH.  Deployment to server has failed. Please inspect workflow logs and server logs."
-              echo 1
-              exit 1
-            fi
+        GIT_COMMIT_HASH_URL="$2/docs/gitcommithash.txt"
 
+        curl -ILs $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
+        if [ 0 -eq $? ]; then
+          CURRENT_GIT_COMMIT_HASH=$(curl -s $GIT_COMMIT_HASH_URL)
+          echo "Hash reported by server is $CURRENT_GIT_COMMIT_HASH"
+          if [ $CURRENT_GIT_COMMIT_HASH == $GITHUB_SHA ]; then
+            echo 0
+            exit 0
           else
-            echo "No gitcommithash.txt exists on server after deployment. Deployment to server has failed. Please inspect workflow logs and server logs."
+            echo "Commit hash of workflow run is $GITHUB_SHA, but commit hash reported by server is $CURRENT_GIT_COMMIT_HASH.  Deployment to server has failed. Please inspect workflow logs and server logs."
             echo 1
             exit 1
           fi
+
+        else
+          echo "No gitcommithash.txt exists on server after deployment. Deployment to server has failed. Please inspect workflow logs and server logs."
+          echo 1
+          exit 1
+        fi
         }
 
-        if [ verify_hash_updated "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" && verify_hash_updated "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}" ]; then
+        if verify_hash_updated "1" "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" && verify_hash_updated "2" "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}"; then
           exit 0
         else
           exit 1
