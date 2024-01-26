@@ -358,8 +358,7 @@ jobs:
           exit 1
         }
 
-        if [ check_for_unzipped_directory "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" &&
-        check_for_unzipped_directory "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}" ]; then
+        if [ check_for_unzipped_directory "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" && check_for_unzipped_directory "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}" ]; then
           exit 0
         else
           exit 1
@@ -452,8 +451,7 @@ jobs:
           fi
         }
 
-        if [ verify_hash_updated "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" &&
-        verify_hash_updated "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}" ]; then
+        if [ verify_hash_updated "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" && verify_hash_updated "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}" ]; then
           exit 0
         else
           exit 1
