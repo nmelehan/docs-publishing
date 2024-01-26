@@ -350,7 +350,7 @@ jobs:
           curl -ILs $CHECK_URL | grep 'HTTP' | grep '200 OK'
           if [ 0 -eq $? ]; then
             echo 0
-            exit 0
+            return 0
           fi
 
           sleep 1
@@ -359,7 +359,7 @@ jobs:
         echo "Server did not unzip docs tarball before ${{ vars.DOCS_WEBSERVER_UNZIP_TIMEOUT }} seconds"
         echo "This is often because there is not enough space on server. An administrator should review the available disk space on the server."
         echo 1
-        exit 1
+        return 1
         }
 
         if check_for_unzipped_directory "1" "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_1 }}" && check_for_unzipped_directory "2" "${{ secrets.DOCS_WEBSITE_URL_NO_CDN_2 }}"; then
@@ -447,17 +447,17 @@ jobs:
           echo "Hash reported by server is $CURRENT_GIT_COMMIT_HASH"
           if [ $CURRENT_GIT_COMMIT_HASH == $GITHUB_SHA ]; then
             echo 0
-            exit 0
+            return 0
           else
             echo "Commit hash of workflow run is $GITHUB_SHA, but commit hash reported by server is $CURRENT_GIT_COMMIT_HASH.  Deployment to server has failed. Please inspect workflow logs and server logs."
             echo 1
-            exit 1
+            return 1
           fi
 
         else
           echo "No gitcommithash.txt exists on server after deployment. Deployment to server has failed. Please inspect workflow logs and server logs."
           echo 1
-          exit 1
+          return 1
         fi
         }
 
