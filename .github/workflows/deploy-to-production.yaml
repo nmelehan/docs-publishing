@@ -427,7 +427,7 @@ jobs:
         }
 
         symlink_docs_on_destination "1" "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_1 }}"
-        symlink_docs_on_destination "2" ${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }}"
+        symlink_docs_on_destination "2" "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }}"
 
         rm sftp_known_hosts
 
