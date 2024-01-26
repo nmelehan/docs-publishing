@@ -293,7 +293,9 @@ jobs:
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT_2 }}" >> sftp_known_hosts
 
         upload_to_destination() {
-        echo "\n\nUploading tarball to server $1"
+        echo ""
+        echo ""
+        echo "Uploading tarball to server $1"
 
         sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@$2 <<EOF
         lpwd
@@ -337,7 +339,9 @@ jobs:
         set +e
 
         check_for_unzipped_directory() {
-        echo "\n\nChecking for unzipped tarball on server $1"
+        echo ""
+        echo ""
+        echo "Checking for unzipped tarball on server $1"
 
         CHECK_URL="$2/docs-$GITHUB_SHA/"
         echo "Waiting for server to unzip uploaded docs site tarball:"
@@ -375,7 +379,9 @@ jobs:
         set +e
 
         get_current_commit_hash_on_server() {
-        echo "\n\nFetching commit hash for currently deployed website on server $1"
+        echo ""
+        echo ""
+        echo "Fetching commit hash for currently deployed website on server $1"
 
         GIT_COMMIT_HASH_URL="$2/docs/gitcommithash.txt"
 
@@ -410,7 +416,9 @@ jobs:
         echo "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_2 }} ${{ secrets.DOCS_WEBSITE_SFTP_HOST_VERIFICATION_FINGERPRINT_2 }}" >> sftp_known_hosts
 
         symlink_docs_on_destination() {
-        echo "\n\nUpdating docs symlink on server $1"
+        echo ""
+        echo ""
+        echo "Updating docs symlink on server $1"
 
         sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@$2 <<EOF
         lpwd
@@ -437,7 +445,9 @@ jobs:
         set +e
 
         verify_hash_updated() {
-        echo "\n\nVerifying commit hash on server $1 matches new deployment"
+        echo ""
+        echo ""
+        echo "Verifying commit hash on server $1 matches new deployment"
 
         GIT_COMMIT_HASH_URL="$2/docs/gitcommithash.txt"
 
