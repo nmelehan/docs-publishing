@@ -68,7 +68,7 @@ jobs:
           sftp -o "UserKnownHostsFile=sftp_known_hosts" ${{ secrets.DOCS_WEBSITE_USER }}@$1 <<EOF
           lpwd
           lls -al
-          EOF
+        EOF
         }
 
         upload_to_destination "${{ secrets.DOCS_WEBSITE_SFTP_DESTINATION_1 }}"
