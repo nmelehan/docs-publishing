@@ -64,6 +64,8 @@ jobs:
         echo $CACERT > cacert.pem
         echo $CACERTVAR > cacertvar.pem
 
+        sed -i 's/^[ ]*//' cacertvar.pem
+
         cat cacertvar.pem
 
         GIT_COMMIT_HASH_URL="${{ secrets.DOCS_WEBSITE_URL_NO_CDN }}/docs/gitcommithash.txt"
