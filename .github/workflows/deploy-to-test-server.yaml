@@ -61,7 +61,6 @@ jobs:
       run: |
         set +e
 
-        echo $CACERT > cacert.pem
         echo $CACERTVAR > cacertvar.pem
 
         sed -i 's/^[ ]*//' cacertvar.pem
@@ -70,9 +69,9 @@ jobs:
 
         GIT_COMMIT_HASH_URL="${{ secrets.DOCS_WEBSITE_URL_NO_CDN }}/docs/gitcommithash.txt"
 
-        curl --cacert $(pwd)/cacert.pem -ILv $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
+        curl --cacert $(pwd)/cacertvar.pem -ILv $GIT_COMMIT_HASH_URL | grep 'HTTP' | grep '200 OK'
         if [ 0 -eq $? ]; then
-          CURRENT_GIT_COMMIT_HASH=$(curl --cacert $(pwd)/cacert.pem -v $GIT_COMMIT_HASH_URL)
+          CURRENT_GIT_COMMIT_HASH=$(curl --cacert $(pwd)/cacertvar.pem -v $GIT_COMMIT_HASH_URL)
           echo "Hash reported by server is $CURRENT_GIT_COMMIT_HASH"
           if [ $CURRENT_GIT_COMMIT_HASH == $GITHUB_SHA ]; then
             exit 0
@@ -86,7 +85,6 @@ jobs:
           exit 1
         fi
 
-        rm cacert.pem
     # - name: 1. Set up Hugo
     #   uses: peaceiris/actions-hugo@v2
     #   with:
