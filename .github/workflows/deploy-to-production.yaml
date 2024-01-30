@@ -45,7 +45,7 @@ on:
 
 jobs:
   deploy-to-production:
-    if: github.repository_owner == 'nmelehan'
+    if: github.repository_owner == 'linode'
     runs-on: ubuntu-latest
 
     environment:
