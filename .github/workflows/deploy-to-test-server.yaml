@@ -60,7 +60,7 @@ jobs:
       run: |
         set +e
 
-        echo ${{ vars.DOCS_WEBSITE_NO_CDN_CA_CERT }} > cacertvar.pem
+        echo $CACERTVAR | tr -d ' ' > cacertvar.pem
 
         sed -i 's/^[ ]*//' cacertvar.pem
 
