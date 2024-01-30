@@ -62,7 +62,7 @@ jobs:
 
         echo $CACERTVAR | tr -d ' ' > cacertvar.pem
 
-        sed -i 's/^[ ]*//' cacertvar.pem
+        sed -i 's/^[ \t]*//' cacertvar.pem
 
         cat cacertvar.pem
 
