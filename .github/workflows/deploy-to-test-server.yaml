@@ -56,12 +56,11 @@ jobs:
     - name: 19. Verify commit hash of deployment
       shell: bash
       env:
-        CACERT: ${{ secrets.DOCS_WEBSITE_NO_CDN_CA_CERT }}
         CACERTVAR: ${{ vars.DOCS_WEBSITE_NO_CDN_CA_CERT }}
       run: |
         set +e
 
-        echo $CACERTVAR > cacertvar.pem
+        echo ${{ vars.DOCS_WEBSITE_NO_CDN_CA_CERT }} > cacertvar.pem
 
         sed -i 's/^[ ]*//' cacertvar.pem
 
