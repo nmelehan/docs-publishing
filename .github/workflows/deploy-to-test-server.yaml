@@ -60,7 +60,7 @@ jobs:
       run: |
         set +e
 
-        echo -n $CACERT_BASE64 | base64 -d ./cacert.pem
+        echo -n $CACERT_BASE64 | base64 --decode > cacert.pem
         ls -l
 
         GIT_COMMIT_HASH_URL="${{ secrets.DOCS_WEBSITE_URL_NO_CDN }}/docs/gitcommithash.txt"
