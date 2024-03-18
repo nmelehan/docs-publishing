@@ -254,6 +254,7 @@ jobs:
       run: |
         echo "$(date +%s)" > build-date.txt
         cat build-date.txt
+        s3cmd put docs-$GITHUB_SHA.tar.gz s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
         s3cmd put build-date.txt s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
         s3cmd ls s3://${{ secrets.OBJ_BUCKET_NAME }}/
         s3cmd ls s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
