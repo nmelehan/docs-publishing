@@ -63,8 +63,9 @@ jobs:
 
     - name: 16. Upload website to object storage
       run: |
-        echo "hello" > hello.txt
-        s3cmd put hello.txt s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
+        echo "$(date +%s)" > build-date.txt
+        echo build-date.txt
+        s3cmd put build-date.txt s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
         s3cmd ls s3://${{ secrets.OBJ_BUCKET_NAME }}/
         s3cmd ls s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
 
