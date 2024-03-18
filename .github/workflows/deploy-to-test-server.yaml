@@ -63,8 +63,10 @@ jobs:
 
     - name: 16. Upload website to object storage
       run: |
-        echo "hello"
+        echo "hello" > hello.txt
+        s3cmd put hello.txt s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/
         s3cmd ls s3://${{ secrets.OBJ_BUCKET_NAME }}/
+        s3cmd ls s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/
 
     # - name: 1. Set up Hugo
     #   uses: peaceiris/actions-hugo@v2
