@@ -213,7 +213,7 @@ jobs:
       run: |
         echo $GITHUB_SHA > public/gitcommithash.txt
 
-    - name: 14. Set up S3cmd cli tool
+    - name: 14. Set up S3cmd CLI tool
       uses: s3-actions/s3cmd@v1.5.0
       with:
         provider: linode
@@ -254,8 +254,17 @@ jobs:
       run: |
         echo "$(date +%s)" > build-date.txt
         cat build-date.txt
+
         s3cmd put docs-$GITHUB_SHA.tar.gz s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
         s3cmd put build-date.txt s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
+
         s3cmd ls s3://${{ secrets.OBJ_BUCKET_NAME }}/
         s3cmd ls s3://${{ secrets.OBJ_BUCKET_NAME }}/staging/docs-$GITHUB_SHA/
+
+
+        s3cmd put docs-$GITHUB_SHA.tar.gz s3://${{ secrets.OBJ_BUCKET_NAME }}/testing/docs-$GITHUB_SHA/
+        s3cmd put build-date.txt s3://${{ secrets.OBJ_BUCKET_NAME }}/testing/docs-$GITHUB_SHA/
+
+        s3cmd put docs-$GITHUB_SHA.tar.gz s3://${{ secrets.OBJ_BUCKET_NAME }}/prod/docs-$GITHUB_SHA/
+        s3cmd put build-date.txt s3://${{ secrets.OBJ_BUCKET_NAME }}/prod/docs-$GITHUB_SHA/
 
